@@ -1,0 +1,78 @@
+<ng-container *ngIf="patient(); else empty">
+    <!-- Datos del paciente (compacto y pro) -->
+    <section class="bg-white rounded-2xl border border-zinc-200 shadow-[0_8px_24px_rgba(2,132,130,0.08)] p-6">
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-zinc-50 rounded-xl p-4 border border-zinc-200">
+          <p class="text-xs uppercase tracking-wide text-zinc-500">Paciente</p>
+          <p class="font-semibold">{{ p().nombre }}</p>
+          <p class="text-sm text-zinc-500">HC: {{ p().hc }} — Tel: {{ p().telefono }}</p>
+        </div>
+        <div class="bg-zinc-50 rounded-xl p-4 border border-zinc-200">
+          <p class="text-xs uppercase tracking-wide text-zinc-500">Documento & Cobertura</p>
+          <p class="font-medium">DNI {{ p().dni }}</p>
+          <p class="text-sm text-zinc-500 truncate">Cobertura: {{ p().cobertura }}</p>
+        </div>
+        <div class="bg-zinc-50 rounded-xl p-4 border border-zinc-200">
+          <p class="text-xs uppercase tracking-wide text-zinc-500">Nacimiento & Edad</p>
+          <p class="font-medium">{{ p().nacimiento }} — {{ p().edad }} años</p>
+          <p class="text-sm text-zinc-500">Última visita: {{ p().ultimaVisita }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Auto‑refracciones (1 o 2) -->
+    <section class="bg-white rounded-2xl border border-zinc-200 shadow-[0_8px_24px_rgba(2,132,130,0.08)] p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold">Auto‑refracción</h2>
+        <span class="text-xs text-zinc-500">Registros: {{ p().autorefracciones.length }}</span>
+      </div>
+
+      <div [ngClass]="p().autorefracciones.length === 2 ? 'grid md:grid-cols-2 gap-4' : ''">
+        <ng-container *ngFor="let r of p().autorefracciones; let i = index">
+          <article class="rounded-xl border border-zinc-200 p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-1 text-xs rounded bg-[#009E9B]/10 text-[#009E9B]">
+                  {{ i === 0 ? (p().autorefracciones.length === 2 ? 'Actual' : 'Medición') : 'Anterior' }}
+                </span>
+                <span class="text-xs text-zinc-500">DV {{ r.DV }}</span>
+              </div>
+              <span class="text-sm font-medium">{{ r.fecha }}</span>
+            </div>
+
+            <!-- tabla OD/OI prolija -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-left text-zinc-500">
+                    <th class="py-2 pr-4">Ojo</th>
+                    <th class="py-2 pr-4">Esf (S)</th>
+                    <th class="py-2 pr-4">Cil (C)</th>
+                    <th class="py-2">Eje (A)</th>
+                  </tr>
+                </thead>
+                <tbody class="align-top">
+                  <tr class="border-t border-zinc-200">
+                    <td class="py-2 pr-4 font-medium">OD</td>
+                    <td class="py-2 pr-4">{{ r.OD.S }}</td>
+                    <td class="py-2 pr-4">{{ r.OD.C }}</td>
+                    <td class="py-2">{{ r.OD.A }}</td>
+                  </tr>
+                  <tr class="border-t border-zinc-200">
+                    <td class="py-2 pr-4 font-medium">OI</td>
+                    <td class="py-2 pr-4">{{ r.OI.S }}</td>
+                    <td class="py-2 pr-4">{{ r.OI.C }}</td>
+                    <td class="py-2">{{ r.OI.A }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </ng-container>
+      </div>
+    </section>
+  </ng-container>
+
+  <ng-template #empty>
+    <div class="text-zinc-500">Seleccioná un paciente para ver su ficha.</div>
+  </ng-template>
