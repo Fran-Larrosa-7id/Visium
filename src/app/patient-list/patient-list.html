@@ -1,5 +1,8 @@
 <aside
-    class="bg-white rounded-2xl border border-zinc-200 shadow-[0_8px_24px_rgba(2,132,130,0.08)] p-4 h-[80vh] overflow-auto">
+    class="bg-white rounded-2xl border border-zinc-200 shadow-[0_8px_24px_rgba(2,132,130,0.08)] p-4 h-[80vh] overflow-auto"  #scrollPane
+  class="patient-scroll bg-white rounded-2xl border border-zinc-200 shadow-[0_8px_24px_rgba(2,132,130,0.08)] p-4 h-[80vh] overflow-auto"
+  [class.fade-top]="topFade()"
+  [class.fade-bottom]="bottomFade()">
     <div class="mb-3 flex items-center gap-2">
         <span class="px-2 py-1 text-xs rounded bg-[#009E9B]/10 text-[#009E9B]">Pacientes</span>
         <span class="text-xs text-zinc-500">{{ filtered().length }} en total</span>
@@ -11,8 +14,7 @@
         <li *ngFor="let p of filtered()">
             <button (click)="select.emit(p.id)"
                 class="w-full text-left px-3 py-2 rounded-xl border transition hover:border-[#009E9B]/40 hover:bg-[#009E9B]/5"
-                [class.ring-2]="selectedId()===p.id" 
-                [class.border-zinc-200]="selectedId()!==p.id">
+                [class.ring-2]="selectedId()===p.id" [class.border-zinc-200]="selectedId()!==p.id">
                 <p class="font-medium leading-tight">{{ p.nombre }}</p>
                 <p class="text-xs text-zinc-500">DNI {{ p.dni }} • HC {{ p.hc }}</p>
             </button>

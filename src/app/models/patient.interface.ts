@@ -1,9 +1,19 @@
 export interface EyeValues { S: string; C: string; A: string; }
+
+export interface KValue { D: string | number; MM: string | number; A: string | number; }
+export interface KeratoEye { H: KValue; V: KValue; AVE: KValue; }
+
 export interface AutoRefraction {
-  fecha: string;          // ej: '01-07-2025'
-  DV: number | string;    // Distancia vértice
-  OD: EyeValues;          // Ojo derecho
-  OI: EyeValues;          // Ojo izquierdo
+  fecha: string;
+  DV: number | string;
+  OD: EyeValues;   // Refracción: S/C/A
+  OI: EyeValues;
+  kerato: {        // Queratometría por ojo
+    OD: KeratoEye;
+    OI: KeratoEye;
+  };
+  se: { OD: string; OI: string };     // Esfera equivalente
+  cyl: { OD: string; OI: string };    // Cilindro final mostrado
 }
 
 export interface Patient {
@@ -16,5 +26,5 @@ export interface Patient {
   edad: number;
   cobertura: string;
   ultimaVisita: string;
-  autorefracciones: AutoRefraction[]; // 1 o 2 items
+  autorefracciones: AutoRefraction[]; // 1 o 2
 }

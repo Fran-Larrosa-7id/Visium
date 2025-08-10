@@ -2,3 +2,93 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Scrollbar solo para el aside de la lista de pacientes */
+aside::-webkit-scrollbar {
+  width: 8px;
+}
+
+aside::-webkit-scrollbar-track {
+  background: linear-gradient(to bottom, #ffffff, #f9fafb);
+  border-radius: 8px;
+}
+
+aside::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00c4bf, #009E9B);
+  border-radius: 8px;
+}
+
+aside::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #00ddd6, #00b0ab);
+}
+
+/* Firefox */
+aside {
+  scrollbar-width: thin;
+  scrollbar-color: #009E9B #f9fafb;
+}
+
+
+
+
+
+/* === Scrollbar SOLO en el panel de pacientes === */
+.patient-scroll::-webkit-scrollbar { width: 10px; }
+.patient-scroll::-webkit-scrollbar-track {
+  background: linear-gradient(to bottom, #ffffff, #f9fafb);
+  border-radius: 8px;
+}
+.patient-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00c4bf, #009E9B);
+  border-radius: 8px;
+}
+.patient-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #00ddd6, #00b0ab);
+}
+/* Firefox */
+.patient-scroll { scrollbar-width: thin; scrollbar-color: #009E9B #f9fafb; }
+
+/* === Fades arriba/abajo (overlays) === */
+.patient-scroll {
+  position: relative;
+  /* espacio para que el overlay no tape el contenido clickeable */
+  --fade-h: 18px;
+}
+
+/* TOP fade */
+.patient-scroll::before,
+.patient-scroll::after {
+  content: "";
+  position: sticky; /* se queda pegado al borde del contenedor scrolleable */
+  display: block;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+/* top */
+.patient-scroll::before {
+  top: -1px;
+  height: var(--fade-h);
+  margin-top: -1px;
+  background:
+    /* línea sutil en color principal */
+    linear-gradient(to bottom, rgba(0,158,155,.35), rgba(0,158,155,0) 30%),
+    /* fade blanco */
+    linear-gradient(to bottom, #ffffff, rgba(255,255,255,0));
+}
+
+/* bottom */
+.patient-scroll::after {
+  bottom: -1px;
+  height: var(--fade-h);
+  margin-bottom: -1px;
+  background:
+    linear-gradient(to top, rgba(0,158,155,.35), rgba(0,158,155,0) 30%),
+    linear-gradient(to top, #ffffff, rgba(255,255,255,0));
+}
+
+/* encender según posición */
+.patient-scroll.fade-top::before { opacity: 1; }
+.patient-scroll.fade-bottom::after { opacity: 1; }

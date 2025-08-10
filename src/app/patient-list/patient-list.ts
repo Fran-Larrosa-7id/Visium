@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, computed, ElementRef, input, output, signal, ViewChild } from '@angular/core';
 import { Patient } from '../models/patient.interface';
 
 @Component({
@@ -20,7 +20,11 @@ export class PatientList {
       p.nombre.toLowerCase().includes(q) || p.dni.includes(q)
     );
   });
+  /* señales y props existentes... */
+  @ViewChild('scrollPane') scrollPane!: ElementRef<HTMLElement>;
 
+  topFade = signal(false);
+  bottomFade = signal(false);
   constructor() {
     // if (this.patients().length) {
     //   console.log(
@@ -30,10 +34,13 @@ export class PatientList {
     // }
   }
 
+  
+
   ngAfterViewInit() {
     console.log(
       'PatientList initialized with patients:',
       this.filtered()
     );
   }
+  
 }
