@@ -1,6 +1,7 @@
+import { Component, effect, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { afterEveryRender, afterNextRender, Component, input } from '@angular/core';
-import { Patient } from '../models/patient.interface';
+import { DatParserService } from '../services/data-parser.service';
+import { AutoRefraction, Patient } from '../models/patient.interface';
 
 @Component({
   selector: 'app-patient-detail',
@@ -10,49 +11,50 @@ import { Patient } from '../models/patient.interface';
 })
 export class PatientDetail {
   patient = input<Patient | null>(null);
-  p = () => this.patient() as Patient;
-  constructor() {
-    afterNextRender(() => {
-      console.log('Se ejecuta una sola vez después del primer render');
-    });
+  patientSignal = signal<Patient | null>(null);
+  private parser = new DatParserService();
+  busy = signal(false);
 
-    afterEveryRender(() => {
-      console.log('Se ejecuta después de cada render');
-    });
+  loadPatient = effect(() => {
+    this.patientSignal.set(this.patient());
+  });
+
+
+  async onFiles(files: FileList | null) {
+    if (!files?.length || !this.patient()) return;
+    this.busy.set(true);
+    try {
+      const refs: AutoRefraction[] = [];
+      for (const f of Array.from(files)) {
+        const text = await f.text();
+        refs.push(this.parser.parseDat(text));
+      }
+      // max 2
+      const merged = [...refs, ...(this.patient()!.autorefracciones || [])].slice(0, 2);
+      // ojo: si preferís que lo nuevo quede primero:
+      merged.sort((a, b) => (b?.fecha ?? '').localeCompare(a?.fecha ?? ''));
+
+      // mutación simple (si el padre mantiene referencia, mejor emitir evento)
+      this.patientSignal.set({
+        ...(this.patientSignal() as Patient),
+        autorefracciones: merged
+      });
+
+    } finally {
+      this.busy.set(false);
+    }
+  }
+  
+  exportJSON() {
+    const data = JSON.stringify(this.patient()?.autorefracciones ?? [], null, 2);
+    this.downloadBlob(new Blob([data], { type: 'application/json' }), 'autorefracciones.json');
   }
 
 
-  ngAfterViewInit() {
-    console.log(
-      'PatientDetail initialized with patient:',
-      this.patient()
-    );
-  }
 
-  downloadDat() {
-    if (!this.patient()) return;
-
-    // Armamos contenido DAT (puede ser CSV-like, JSON, etc.)
-    const p = this.patient()!;
-    let content = `PACIENTE: ${p.nombre}\nDNI: ${p.dni}\nHC: ${p.hc}\n`;
-    content += `Última visita: ${p.ultimaVisita}\n\nAUTOREFRACCIONES:\n`;
-
-    p.autorefracciones.forEach((r, idx) => {
-      content += `\n#${idx + 1} — Fecha: ${r.fecha} — DV: ${r.DV}\n`;
-      content += `OD: S=${r.OD.S} C=${r.OD.C} A=${r.OD.A}\n`;
-      content += `OI: S=${r.OI.S} C=${r.OI.C} A=${r.OI.A}\n`;
-    });
-
-    // Crear blob y disparar descarga
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
+  private downloadBlob(blob: Blob, filename: string) {
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `${p.nombre.replace(/\\s+/g, '_')}.dat`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 500);
   }
-
 }
