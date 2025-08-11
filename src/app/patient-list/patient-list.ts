@@ -20,11 +20,17 @@ export class PatientList {
       p.nombre.toLowerCase().includes(q) || p.dni.includes(q)
     );
   });
-  /* señales y props existentes... */
+  
   @ViewChild('scrollPane') scrollPane!: ElementRef<HTMLElement>;
 
   topFade = signal(false);
   bottomFade = signal(false);
+  
+  // TrackBy function for better performance
+  trackByPatientId(index: number, patient: Patient): number {
+    return patient.id;
+  }
+  
   constructor() {
     // if (this.patients().length) {
     //   console.log(
@@ -34,13 +40,10 @@ export class PatientList {
     // }
   }
 
-  
-
   ngAfterViewInit() {
     console.log(
       'PatientList initialized with patients:',
       this.filtered()
     );
   }
-  
 }

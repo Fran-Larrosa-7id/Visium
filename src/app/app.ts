@@ -15,18 +15,29 @@ import { History } from './history/history';
 })
 export class App {
   protected readonly title = signal('mockOjos');
-   patients = signal<Patient[]>(MOCK_PATIENTS);
+  patients = signal<Patient[]>(MOCK_PATIENTS);
   selectedId = signal<number | null>(MOCK_PATIENTS[0]?.id ?? null);
   selected = computed(() => this.patients().find(p => p.id === this.selectedId()) ?? null);
-  // onSelect = (id: any) => this.selectedId.set(id);
-  constructor() {
-    console.log(
-      'App initialized with patients:',
-      this.selected()
-    );
+  
+  // Dark mode functionality
+  isDarkMode = signal<boolean>(false);
+  
+  toggleDarkMode() {
+    this.isDarkMode.update(current => !current);
+    const newValue = this.isDarkMode();
+    document.documentElement.classList.toggle('dark', newValue);
+    localStorage.setItem('darkMode', newValue.toString());
   }
+  constructor() {
+    // Initialize dark mode based on user preference or system setting
+    const isDark = localStorage.getItem('darkMode') === 'true' || 
+                   (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    this.isDarkMode.set(isDark);
+    document.documentElement.classList.toggle('dark', isDark);
+  }
+  
   onSelectPatient = (id:any) => {
-
     this.selectedId.set(id);
   };
 }

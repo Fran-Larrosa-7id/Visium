@@ -2,30 +2,250 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* Scrollbar solo para el aside de la lista de pacientes */
-aside::-webkit-scrollbar {
+/* Variables CSS para el tema */
+:root {
+  --color-primary: #0d9488;
+  --color-primary-light: #14b8a6;
+  --color-primary-dark: #0f766e;
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-medical: 0 8px 32px rgba(13, 148, 136, 0.12);
+}
+
+.dark {
+  --shadow-medical: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Reset and base styles */
+html {
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Scrollbar moderno para light mode */
+::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
-aside::-webkit-scrollbar-track {
-  background: linear-gradient(to bottom, #ffffff, #f9fafb);
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
   border-radius: 8px;
 }
 
-aside::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00c4bf, #009E9B);
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #14b8a6, #0d9488);
   border-radius: 8px;
+  border: 2px solid #f1f5f9;
 }
 
-aside::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #00ddd6, #00b0ab);
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #0f766e, #0d9488);
 }
 
-/* Firefox */
-aside {
+/* Scrollbar para dark mode */
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #14b8a6, #0d9488);
+  border: 2px solid #1e293b;
+}
+
+/* Firefox scrollbar */
+* {
   scrollbar-width: thin;
-  scrollbar-color: #009E9B #f9fafb;
+  scrollbar-color: #0d9488 #f1f5f9;
+}
+
+.dark * {
+  scrollbar-color: #0d9488 #1e293b;
+}
+
+/* Animaciones suaves */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Fade effects para scroll */
+.fade-top {
+  position: relative;
+}
+
+.fade-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.dark .fade-top::before {
+  background: linear-gradient(180deg, rgba(31, 41, 55, 1) 0%, rgba(31, 41, 55, 0) 100%);
+}
+
+.fade-bottom {
+  position: relative;
+}
+
+.fade-bottom::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.dark .fade-bottom::after {
+  background: linear-gradient(0deg, rgba(31, 41, 55, 1) 0%, rgba(31, 41, 55, 0) 100%);
+}
+
+/* Efectos de glassmorphism sutil */
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-effect {
+  background: rgba(31, 41, 55, 0.8);
+  border: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+/* Focus styles for accessibility */
+.focus\\:ring-2:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #14b8a6;
+}
+
+/* Custom animations */
+@keyframes slide-in-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.slide-in-from-bottom-4 {
+  animation: slide-in-from-bottom 0.5s ease-out;
+}
+
+.slide-in-from-left-6 {
+  animation: slide-in-from-left 0.7s ease-out;
+}
+
+.slide-in-from-right-6 {
+  animation: slide-in-from-right 0.7s ease-out;
+}
+
+.duration-500 {
+  animation-duration: 0.5s;
+}
+
+.duration-700 {
+  animation-duration: 0.7s;
+}
+
+.delay-150 {
+  animation-delay: 0.15s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+/* Hover animations */
+@keyframes pulse-gentle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-gentle {
+  animation: pulse-gentle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Medical data styling */
+.medical-data {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom component styles */
+.medical-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: var(--shadow-medical);
+  transition: all 0.2s ease-in-out;
+}
+
+.dark .medical-card {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.medical-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(13, 148, 136, 0.15);
+}
+
+.dark .medical-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
 
