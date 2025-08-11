@@ -3,16 +3,17 @@ export interface KValue { D: number | null; MM: number | null; A: number | null;
 export interface KeratoEye { H: KValue; V: KValue; AVE: KValue; }
 
 export interface AutoRefraction {
-  fecha: string | null;     // '2024_07_04'
-  hora: string | null;      // 'AM 01:32'
-  PD: number | null;        // 60.0
-  VD: number | null;        // 12.00
-  OD: EyeValues;            // Refracción S/C/A
-  OI: EyeValues;
+  fecha: string | null;
+  hora: string | null;
+  PD: number | null;      // ~50–70
+  VD: number | null;      // ~10–15
+  OD: EyeValues; OI: EyeValues;
   se: { OD: string | null; OI: string | null };
-  kerato?: { OD: KeratoEye; OI: KeratoEye }; // opcional si no vino
+  kerato?: { OD: KeratoEye; OI: KeratoEye };
   cyl: { OD: string | null; OI: string | null };
-  device?: { model?: string; fw?: string; rawTail?: string }; // “KR-8900 021.12”, etc.
+  device?: { model?: string; fw?: string; rawTail?: string };
+  host?: string | null;     // KR-8900 (igual que device.model)
+  workId?: string | null;   // p. ej. "0895"
 }
 
 
