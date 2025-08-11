@@ -1,6 +1,8 @@
-<div class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[320px,1fr] gap-6">
+<div class="w-full min-h-[100dvh] px-4 py-6 flex justify-between gap-4">
   <app-patient-list [patients]="patients()" [selectedId]="selectedId()" (select)="onSelectPatient($event)">
   </app-patient-list>
 
-  <app-patient-detail [patient]="selected()"></app-patient-detail>
+  <app-patient-detail class="w-[70%]" [patient]="selected()"></app-patient-detail>
+
+  <app-history></app-history>
 </div>  

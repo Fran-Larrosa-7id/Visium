@@ -5,10 +5,11 @@ import { PatientDetail } from './patient-detail/patient-detail';
 import { PatientList } from './patient-list/patient-list';
 import { Patient } from './models/patient.interface';
 import { MOCK_PATIENTS } from './mock/mock-patient';
+import { History } from './history/history';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, PatientList, PatientDetail],
+  imports: [CommonModule, PatientList, PatientDetail, History],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
