@@ -17,7 +17,7 @@ export class PatientList {
     const q = this.query().toLowerCase().trim();
     if (!q) return this.patients();
     return this.patients().filter(p =>
-      p.nombre.toLowerCase().includes(q) || p.dni.includes(q)
+      p.nombre.toLowerCase().includes(q)
     );
   });
   

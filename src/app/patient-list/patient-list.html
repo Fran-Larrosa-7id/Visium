@@ -39,12 +39,13 @@
   <!-- Patient list -->
   <div class="flex-1 overflow-auto p-4">
     <ul class="space-y-3">
-      <li *ngFor="let p of filtered(); trackBy: trackByPatientId">
+      @for (p of filtered(); track $index) {
+      <li>
         <button (click)="select.emit(p.id)" [ngClass]="{
             'w-full text-left p-4 rounded-xl border transition-all duration-200 group': true,
             'ring-2 ring-teal-500 border-teal-300 bg-teal-50 dark:bg-teal-900/20': selectedId()===p.id,
             'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-teal-300': selectedId()!==p.id
-          }">>
+          }">
 
           <div class="flex items-start justify-between">
             <div class="flex-1 min-w-0">
@@ -53,10 +54,6 @@
                 {{ p.nombre }}
               </p>
               <div class="mt-1 flex items-center gap-2 text-xs">
-                <span
-                  class="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300">
-                  DNI {{ p.dni }}
-                </span>
                 <span
                   class="inline-flex items-center px-2 py-1 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
                   HC {{ p.hc }}
@@ -71,6 +68,7 @@
           </div>
         </button>
       </li>
+      }
     </ul>
   </div>
 </aside>

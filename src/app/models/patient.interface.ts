@@ -19,8 +19,7 @@ export interface AutoRefraction {
 
 
 export interface Patient {
-  id: number; nombre: string; dni: string; hc: string;
-  telefono: string; nacimiento: string; edad: number;
-  cobertura: string; ultimaVisita: string;
-  autorefracciones: AutoRefraction[]; // 1 o 2
+  id: number;
+  nombre: string; 
+  hc: string;
 }

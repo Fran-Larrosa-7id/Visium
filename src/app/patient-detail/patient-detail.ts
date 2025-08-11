@@ -12,6 +12,7 @@ import { AutoRefraction, Patient } from '../models/patient.interface';
 export class PatientDetail {
   patient = input<Patient | null>(null);
   patientSignal = signal<Patient | null>(null);
+  refracciones = signal<AutoRefraction[]>([]);
   private parser = new DatParserService();
   busy = signal(false);
 
@@ -30,25 +31,23 @@ export class PatientDetail {
         refs.push(this.parser.parseDat(text));
       }
       // max 2
-      const merged = [...refs, ...(this.patient()!.autorefracciones || [])].slice(0, 2);
+      const merged = [...refs, ...(this.refracciones() || [])].slice(0, 2);
       // ojo: si preferís que lo nuevo quede primero:
       merged.sort((a, b) => (b?.fecha ?? '').localeCompare(a?.fecha ?? ''));
 
       // mutación simple (si el padre mantiene referencia, mejor emitir evento)
-      this.patientSignal.set({
-        ...(this.patientSignal() as Patient),
-        autorefracciones: merged
-      });
+      this.refracciones.set(merged);
 
     } finally {
       this.busy.set(false);
     }
   }
   
-  exportJSON() {
-    const data = JSON.stringify(this.patient()?.autorefracciones ?? [], null, 2);
-    this.downloadBlob(new Blob([data], { type: 'application/json' }), 'autorefracciones.json');
-  }
+  //TODO: A futuro
+  // exportJSON() {
+  //   const data = JSON.stringify(this.patient()?.autorefracciones ?? [], null, 2);
+  //   this.downloadBlob(new Blob([data], { type: 'application/json' }), 'autorefracciones.json');
+  // }
 
 
 
