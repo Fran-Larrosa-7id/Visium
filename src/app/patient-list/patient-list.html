@@ -62,8 +62,10 @@
             </div>
 
             <div class="ml-3 flex-shrink-0">
-              <div class="h-2 w-2 rounded-full bg-green-400 dark:bg-green-500" *ngIf="selectedId()===p.id"
+              @if(selectedId()===p.id) {
+              <div class="h-2 w-2 rounded-full bg-green-400 dark:bg-green-500"
                 title="Paciente seleccionado"></div>
+              }
             </div>
           </div>
         </button>
