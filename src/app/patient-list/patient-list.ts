@@ -32,18 +32,5 @@ export class PatientList {
   }
   
   constructor() {
-    // if (this.patients().length) {
-    //   console.log(
-    //     'PatientList initialized with patients:',
-    //     this.filtered()
-    //   );
-    // }
-  }
-
-  ngAfterViewInit() {
-    console.log(
-      'PatientList initialized with patients:',
-      this.filtered()
-    );
   }
 }

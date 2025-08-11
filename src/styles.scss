@@ -72,64 +72,11 @@ body {
   scrollbar-color: #0d9488 #1e293b;
 }
 
-/* Animaciones suaves */
+/* Transiciones básicas */
 * {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-property: color, background-color, border-color;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
-}
-
-/* Fade effects para scroll */
-.fade-top {
-  position: relative;
-}
-
-.fade-top::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
-  pointer-events: none;
-  z-index: 10;
-}
-
-.dark .fade-top::before {
-  background: linear-gradient(180deg, rgba(31, 41, 55, 1) 0%, rgba(31, 41, 55, 0) 100%);
-}
-
-.fade-bottom {
-  position: relative;
-}
-
-.fade-bottom::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: linear-gradient(0deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
-  pointer-events: none;
-  z-index: 10;
-}
-
-.dark .fade-bottom::after {
-  background: linear-gradient(0deg, rgba(31, 41, 55, 1) 0%, rgba(31, 41, 55, 0) 100%);
-}
-
-/* Efectos de glassmorphism sutil */
-.glass-effect {
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.dark .glass-effect {
-  background: rgba(31, 41, 55, 0.8);
-  border: 1px solid rgba(75, 85, 99, 0.3);
 }
 
 /* Focus styles for accessibility */
@@ -137,86 +84,6 @@ body {
   outline: 2px solid transparent;
   outline-offset: 2px;
   box-shadow: 0 0 0 2px #14b8a6;
-}
-
-/* Custom animations */
-@keyframes slide-in-from-bottom {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-in-from-left {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slide-in-from-right {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.animate-in {
-  animation-fill-mode: both;
-}
-
-.slide-in-from-bottom-4 {
-  animation: slide-in-from-bottom 0.5s ease-out;
-}
-
-.slide-in-from-left-6 {
-  animation: slide-in-from-left 0.7s ease-out;
-}
-
-.slide-in-from-right-6 {
-  animation: slide-in-from-right 0.7s ease-out;
-}
-
-.duration-500 {
-  animation-duration: 0.5s;
-}
-
-.duration-700 {
-  animation-duration: 0.7s;
-}
-
-.delay-150 {
-  animation-delay: 0.15s;
-}
-
-.delay-300 {
-  animation-delay: 0.3s;
-}
-
-/* Hover animations */
-@keyframes pulse-gentle {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-.animate-pulse-gentle {
-  animation: pulse-gentle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Medical data styling */
@@ -249,66 +116,3 @@ body {
 }
 
 
-
-
-
-/* === Scrollbar SOLO en el panel de pacientes === */
-.patient-scroll::-webkit-scrollbar { width: 10px; }
-.patient-scroll::-webkit-scrollbar-track {
-  background: linear-gradient(to bottom, #ffffff, #f9fafb);
-  border-radius: 8px;
-}
-.patient-scroll::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00c4bf, #009E9B);
-  border-radius: 8px;
-}
-.patient-scroll::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #00ddd6, #00b0ab);
-}
-/* Firefox */
-.patient-scroll { scrollbar-width: thin; scrollbar-color: #009E9B #f9fafb; }
-
-/* === Fades arriba/abajo (overlays) === */
-.patient-scroll {
-  position: relative;
-  /* espacio para que el overlay no tape el contenido clickeable */
-  --fade-h: 18px;
-}
-
-/* TOP fade */
-.patient-scroll::before,
-.patient-scroll::after {
-  content: "";
-  position: sticky; /* se queda pegado al borde del contenedor scrolleable */
-  display: block;
-  pointer-events: none;
-  z-index: 5;
-  opacity: 0;
-  transition: opacity .2s ease;
-}
-
-/* top */
-.patient-scroll::before {
-  top: -1px;
-  height: var(--fade-h);
-  margin-top: -1px;
-  background:
-    /* línea sutil en color principal */
-    linear-gradient(to bottom, rgba(0,158,155,.35), rgba(0,158,155,0) 30%),
-    /* fade blanco */
-    linear-gradient(to bottom, #ffffff, rgba(255,255,255,0));
-}
-
-/* bottom */
-.patient-scroll::after {
-  bottom: -1px;
-  height: var(--fade-h);
-  margin-bottom: -1px;
-  background:
-    linear-gradient(to top, rgba(0,158,155,.35), rgba(0,158,155,0) 30%),
-    linear-gradient(to top, #ffffff, rgba(255,255,255,0));
-}
-
-/* encender según posición */
-.patient-scroll.fade-top::before { opacity: 1; }
-.patient-scroll.fade-bottom::after { opacity: 1; }
