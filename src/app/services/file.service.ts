@@ -12,25 +12,56 @@ export class FileService {
         const db = await this.dbPromise;
         await db.put('handles', handle, key); // FileSystem*Handle se puede guardar en IndexedDB
     }
+
+    // Método público para guardar carpeta de guardado
+    async saveSaveDirectory(handle: FileSystemDirectoryHandle) {
+        await this.saveHandle('saveDir', handle);
+    }
     private async loadHandle<T>(key: string): Promise<T | null> {
         const db = await this.dbPromise;
         return (await db.get('handles', key)) ?? null;
     }
 
-    // 1) Usuario elige carpeta
-    async pickDatDirectory(): Promise<FileSystemDirectoryHandle | null> {
-
+    // 1) Usuario elige carpeta de lectura (autorrefractiones)
+    async pickReadDirectory(): Promise<FileSystemDirectoryHandle | null> {
         const dir = await (window as any).showDirectoryPicker?.();
         if (!dir) return null;
         // guardamos
-        await this.saveHandle('datDir', dir);
+        await this.saveHandle('readDir', dir);
         return dir;
     }
 
-    // 2) Intentar restaurar carpeta guardada
-    async restoreDirectory(): Promise<FileSystemDirectoryHandle | null> {
-        const dir = await this.loadHandle<FileSystemDirectoryHandle>('datDir');
+    // 1b) Usuario elige carpeta de guardado (exportaciones)
+    async pickSaveDirectory(): Promise<FileSystemDirectoryHandle | null> {
+        const dir = await (window as any).showDirectoryPicker?.();
+        if (!dir) return null;
+        // guardamos
+        await this.saveHandle('saveDir', dir);
+        return dir;
+    }
+
+    // 2) Intentar restaurar carpeta de lectura
+    async restoreReadDirectory(): Promise<FileSystemDirectoryHandle | null> {
+        const dir = await this.loadHandle<FileSystemDirectoryHandle>('readDir');
         return dir ?? null; // NO pidas permisos acá
+    }
+
+    // 2b) Intentar restaurar carpeta de guardado
+    async restoreSaveDirectory(): Promise<FileSystemDirectoryHandle | null> {
+        const dir = await this.loadHandle<FileSystemDirectoryHandle>('saveDir');
+        return dir ?? null; // NO pidas permisos acá
+    }
+
+
+
+    // Método legacy para compatibilidad (usa carpeta de lectura)
+    async pickDatDirectory(): Promise<FileSystemDirectoryHandle | null> {
+        return this.pickReadDirectory();
+    }
+
+    // Método legacy para compatibilidad (usa carpeta de lectura)
+    async restoreDirectory(): Promise<FileSystemDirectoryHandle | null> {
+        return this.restoreReadDirectory();
     }
     
     // 3) Pedir/verificar permisos de lectura

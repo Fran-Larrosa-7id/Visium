@@ -22,6 +22,7 @@ export class PatientDetail implements OnInit {
   busy = signal(false);
   needsPermission = signal(false);
   linked = signal<FileSystemDirectoryHandle | null>(null);
+  saveFolder = signal<FileSystemDirectoryHandle | null>(null); // Carpeta separada para guardado
   isDirectory = signal<boolean>(false);
   showMessage = signal<boolean>(false);
   showMessageSave = signal<boolean>(false);
@@ -34,9 +35,12 @@ export class PatientDetail implements OnInit {
 
   async ngOnInit() {
     const dir = await this._fileSvc.restoreDirectory();
+    const dirSave = await this._fileSvc.restoreSaveDirectory();
+    if (!dirSave) return;
     if (!dir) return;
     this.isDirectory.set(true);
     this.linked.set(dir);
+    this.saveFolder.set(dirSave);
     const state = await this._fileSvc.queryPerm(dir, false); // solo consultar
     if (state === 'granted') {
       await this.loadLatestFrom(dir);
@@ -135,8 +139,16 @@ export class PatientDetail implements OnInit {
   }
 
   public async saveDatFile() {
-    const dir = this.linked();
-    if (!dir) { alert('Primero debe vincular una carpeta'); return; }
+    // Usar carpeta de guardado si está disponible, sino carpeta de lectura
+    const saveDir = this.saveFolder();
+    const readDir = this.linked();
+    const dir = saveDir || readDir;
+    
+    if (!dir) { 
+      alert('Primero debe vincular una carpeta'); 
+      return; 
+    }
+    
     const r = this.refracciones()[0];
     if (!r) { alert('No hay datos para guardar'); return; }
     const patient = this.patientSignal();
@@ -222,5 +234,18 @@ export class PatientDetail implements OnInit {
       apellido = (this.name().trim().toUpperCase() + '----').slice(0, 4);
     }
     return `${model}-${workId}-${anio}-${mes}-${dia}-${hora}-${min}-${historia}-${apellido}.dat`;
+  }
+
+  // Método para vincular carpeta de guardado
+  async linkSaveFolder() {
+    const dir = await this._fileSvc.pickSaveDirectory();
+    if (dir) {
+      this.saveFolder.set(dir);
+    }
+  }
+
+  // Verificar si la carpeta de guardado está vinculada
+  isSaveFolderLinked(): boolean {
+    return !!this.saveFolder();
   }
 }
