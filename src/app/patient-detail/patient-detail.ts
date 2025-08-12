@@ -241,6 +241,7 @@ export class PatientDetail implements OnInit {
     const dir = await this._fileSvc.pickSaveDirectory();
     if (dir) {
       this.saveFolder.set(dir);
+      await this._fileSvc.saveSaveDirectory(dir); // Guardar en IndexedDB para persistencia
     }
   }
 

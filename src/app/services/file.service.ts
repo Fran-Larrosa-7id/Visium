@@ -17,6 +17,11 @@ export class FileService {
     async saveSaveDirectory(handle: FileSystemDirectoryHandle) {
         await this.saveHandle('saveDir', handle);
     }
+
+    // 7) Obtener la carpeta de guardado actual (útil para el historial)
+    async getCurrentSaveDirectory(): Promise<FileSystemDirectoryHandle | null> {
+        return this.restoreSaveDirectory();
+    }
     private async loadHandle<T>(key: string): Promise<T | null> {
         const db = await this.dbPromise;
         return (await db.get('handles', key)) ?? null;
@@ -98,6 +103,47 @@ export class FileService {
         const latest = files[0];
         const text = await (await latest.handle.getFile()).text();
         return { name: latest.name, text };
+    }
+
+    // 5) Listar todos los archivos .dat de una carpeta (para historial)
+    async listAllDatFiles(dir: FileSystemDirectoryHandle | null): Promise<{ name: string, lastModified: number, size: number }[]> {
+        const files: { name: string, lastModified: number, size: number }[] = [];
+        if (!dir) return files;
+        
+        try {
+            // @ts-ignore
+            for await (const [name, handle] of (dir as any).entries()) {
+                if (handle.kind === 'file' && name.toLowerCase().endsWith('.dat')) {
+                    const file = await (handle as FileSystemFileHandle).getFile();
+                    files.push({ 
+                        name, 
+                        lastModified: file.lastModified,
+                        size: file.size
+                    });
+                }
+            }
+            // Ordenar por fecha de modificación (más reciente primero)
+            files.sort((a, b) => b.lastModified - a.lastModified);
+        } catch (error) {
+            console.error('Error listing files:', error);
+        }
+        
+        return files;
+    }
+
+    // 6) Leer un archivo específico por nombre
+    async readSpecificDatFile(dir: FileSystemDirectoryHandle | null, filename: string): Promise<{ name: string, text: string } | null> {
+        if (!dir) return null;
+        
+        try {
+            const fileHandle = await (dir as any).getFileHandle(filename);
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            return { name: filename, text };
+        } catch (error) {
+            console.error('Error reading specific file:', error);
+            return null;
+        }
     }
 
 

@@ -19,6 +19,9 @@ export class App {
   selectedId = signal<number | null>(null);
   selected = computed(() => this.patients().find(p => p.id === this.selectedId()) ?? null);
   
+  // Carpeta de guardado compartida entre componentes
+  saveFolder = signal<FileSystemDirectoryHandle | null>(null);
+  
   // Dark mode functionality
   isDarkMode = signal<boolean>(false);
   
@@ -39,5 +42,10 @@ export class App {
   
   onSelectPatient = (id:any) => {
     this.selectedId.set(id);
+  };
+
+  // Método para actualizar la carpeta de guardado desde patient-detail
+  onSaveFolderChanged = (folder: FileSystemDirectoryHandle | null) => {
+    this.saveFolder.set(folder);
   };
 }
