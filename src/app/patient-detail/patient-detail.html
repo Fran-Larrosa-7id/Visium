@@ -87,14 +87,14 @@
             <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
               <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">OD</td>
-                <td class="px-4 py-3 text-right font-mono text-gray-900 dark:text-white">{{ r.OD.S ?? '—' }}</td>
-                <td class="px-4 py-3 text-right font-mono text-gray-900 dark:text-white">{{ r.OD.C ?? '—' }}</td>
+                <td class="px-4 py-3 text-right font-mono text-base font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100">{{ r.OD.S ?? '—' }}</td>
+                <td class="px-4 py-3 text-right font-mono text-base font-bold bg-orange-50 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">{{ r.OD.C ?? '—' }}</td>
                 <td class="px-4 py-3 text-right font-mono text-gray-900 dark:text-white">{{ r.OD.A ?? '—' }}</td>
               </tr>
               <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">OI</td>
-                <td class="px-4 py-3 text-right font-mono text-gray-900 dark:text-white">{{ r.OI.S ?? '—' }}</td>
-                <td class="px-4 py-3 text-right font-mono text-gray-900 dark:text-white">{{ r.OI.C ?? '—' }}</td>
+                <td class="px-4 py-3 text-right font-mono text-base font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100">{{ r.OI.S ?? '—' }}</td>
+                <td class="px-4 py-3 text-right font-mono text-base font-bold bg-orange-50 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">{{ r.OI.C ?? '—' }}</td>
                 <td class="px-4 py-3 text-right font-mono text-gray-900 dark:text-white">{{ r.OI.A ?? '—' }}</td>
               </tr>
             </tbody>
@@ -116,7 +116,7 @@
               <span class="text-sm font-semibold text-gray-900 dark:text-white">Ojo Derecho</span>
             </div>
             <span
-              class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-lg bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300">
+              class="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded-lg bg-teal-100 dark:bg-teal-800/50 text-teal-900 dark:text-teal-100 border border-teal-200 dark:border-teal-600">
               SE: {{ r.se.OD ?? '—' }}
             </span>
           </div>
@@ -166,7 +166,7 @@
               <span class="text-sm font-semibold text-gray-900 dark:text-white">Ojo Izquierdo</span>
             </div>
             <span
-              class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-lg bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300">
+              class="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded-lg bg-teal-100 dark:bg-teal-800/50 text-teal-900 dark:text-teal-100 border border-teal-200 dark:border-teal-600">
               SE: {{ r.se.OI ?? '—' }}
             </span>
           </div>
@@ -213,11 +213,11 @@
         <div class="flex items-center gap-6">
           <div class="text-sm">
             <span class="text-gray-500 dark:text-gray-400">Cyl (OD):</span>
-            <span class="ml-2 font-mono font-semibold text-gray-900 dark:text-white">{{ r.cyl.OD ?? '—' }}</span>
+            <span class="ml-2 px-2 py-1 font-mono font-bold text-orange-900 dark:text-orange-100 bg-orange-50 dark:bg-orange-900/30 rounded">{{ r.cyl.OD ?? '—' }}</span>
           </div>
           <div class="text-sm">
             <span class="text-gray-500 dark:text-gray-400">Cyl (OI):</span>
-            <span class="ml-2 font-mono font-semibold text-gray-900 dark:text-white">{{ r.cyl.OI ?? '—' }}</span>
+            <span class="ml-2 px-2 py-1 font-mono font-bold text-orange-900 dark:text-orange-100 bg-orange-50 dark:bg-orange-900/30 rounded">{{ r.cyl.OI ?? '—' }}</span>
           </div>
         </div>
 
