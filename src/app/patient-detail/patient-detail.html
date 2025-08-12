@@ -67,89 +67,10 @@
     @let r = refracciones()[0];
 
     <article
-      class="bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 p-6 space-y-6">
+  class="bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 p-6 space-y-6">
 
-      <!-- Patient and Equipment Info -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Paciente Card -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-6 flex flex-col h-full">
-          <h3 class="text-lg font-bold text-center text-gray-900 dark:text-white mb-6">Paciente</h3>
-          <div class="space-y-4 flex-1">
-            <div>
-              <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Nombre</label>
-              <input type="text" placeholder="Ingrese el nombre del paciente"
-                class="w-full h-10 px-3 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Historia clínica</label>
-              <input type="text" placeholder="Número de historia clínica"
-                class="w-full h-10 px-3 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Equipo Card -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-6 flex flex-col h-full">
-          <h3 class="text-lg font-bold text-center text-gray-900 dark:text-white mb-6">Equipo</h3>
-          <div class="space-y-3 text-sm flex-1 flex flex-col justify-center">
-            @if(r.device) {
-            <div class="flex justify-between items-center py-1">
-              <span class="font-medium text-gray-900 dark:text-white">Modelo:</span> 
-              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.device.model ?? 'KR-8900' }}</span>
-            </div>
-            <div class="flex justify-between items-center py-1">
-              <span class="font-medium text-gray-900 dark:text-white">Fecha:</span> 
-              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.fecha ?? '—' }}</span>
-            </div>
-            <div class="flex justify-between items-center py-1">
-              <span class="font-medium text-gray-900 dark:text-white">Hora:</span> 
-              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.hora ?? '—' }}</span>
-            </div>
-            <div class="flex justify-between items-center py-1">
-              <span class="font-medium text-gray-900 dark:text-white">ID de trabajo:</span> 
-              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.workId ?? '—' }}</span>
-            </div>
-            } @else {
-            <div class="flex justify-between items-center py-1">
-              <span class="font-medium text-gray-900 dark:text-white">Modelo:</span> 
-              <span class="text-gray-600 dark:text-gray-300 font-mono">KR-8900</span>
-            </div>
-            <div class="flex justify-between items-center py-1">
-              <span class="font-medium text-gray-900 dark:text-white">Fecha:</span> 
-              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.fecha ?? '—' }}</span>
-            </div>
-            <div class="flex justify-between items-center py-1">
-              <span class="font-medium text-gray-900 dark:text-white">Hora:</span> 
-              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.hora ?? '—' }}</span>
-            </div>
-            <div class="flex justify-between items-center py-1">
-              <span class="font-medium text-gray-900 dark:text-white">ID de trabajo:</span> 
-              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.workId ?? '—' }}</span>
-            </div>
-            }
-          </div>
-        </div>
-
-        <!-- Mediciones Card -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-6 flex flex-col h-full">
-          <h3 class="text-lg font-bold text-center text-gray-900 dark:text-white mb-6">Mediciones</h3>
-          <div class="flex-1 flex items-center justify-center">
-            <div class="flex flex-col sm:flex-row items-center gap-4">
-              <span
-                class="inline-flex items-center px-4 py-3 text-lg font-medium rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-sm">
-                PD <span class="font-bold ml-2">{{ r.PD ?? '—' }}</span>
-              </span>
-              <span
-                class="inline-flex items-center px-4 py-3 text-lg font-medium rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 shadow-sm">
-                VD <span class="font-bold ml-2">{{ r.VD ?? '—' }}</span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Eyes Data -->
-      <div class="grid md:grid-cols-2 gap-6">
+  <!-- Eyes Data (ahora primero) -->
+  <div class="grid md:grid-cols-2 gap-6 mb-8">
         <!-- Ojo Derecho Card -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden">
           <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 border-b border-gray-200 dark:border-gray-600">
@@ -182,7 +103,7 @@
             @if(r.kerato?.OD) {
             <!-- Keratometry table -->
             <div class="bg-gray-100 dark:bg-gray-600 rounded-lg overflow-hidden">
-              <table class="w-full text-base">
+              <table class="w-full text-2xl">
                 <thead class="bg-green-200 dark:bg-green-800">
                   <tr>
                     <th class="px-2 py-1.5 text-center font-bold text-green-900 dark:text-green-100"></th>
@@ -273,7 +194,7 @@
             @if(r.kerato?.OI) {
             <!-- Keratometry table -->
             <div class="bg-gray-100 dark:bg-gray-600 rounded-lg overflow-hidden">
-              <table class="w-full text-base">
+              <table class="w-full text-2xl">
                 <thead class="bg-green-200 dark:bg-green-800">
                   <tr>
                     <th class="px-2 py-1.5 text-center font-bold text-green-900 dark:text-green-100"></th>
@@ -329,6 +250,85 @@
               </table>
             </div>
             }
+          </div>
+        </div>
+      </div>
+
+      <!-- Patient and Equipment Info (ahora abajo, cards más chicas) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+        <!-- Paciente Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0">
+          <h3 class="text-base font-bold text-center text-gray-900 dark:text-white mb-3">Paciente</h3>
+          <div class="space-y-2 flex-1">
+            <div>
+              <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Nombre</label>
+              <input type="text" placeholder="Ingrese el nombre del paciente"
+                class="w-full h-8 px-2 text-xs bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Historia clínica</label>
+              <input type="text" placeholder="Número de historia clínica"
+                class="w-full h-8 px-2 text-xs bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Equipo Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0">
+          <h3 class="text-base font-bold text-center text-gray-900 dark:text-white mb-3">Equipo</h3>
+          <div class="space-y-1 text-xs flex-1 flex flex-col justify-center">
+            @if(r.device) {
+            <div class="flex justify-between items-center py-0.5">
+              <span class="font-medium text-gray-900 dark:text-white">Modelo:</span> 
+              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.device.model ?? 'KR-8900' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5">
+              <span class="font-medium text-gray-900 dark:text-white">Fecha:</span> 
+              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.fecha ?? '—' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5">
+              <span class="font-medium text-gray-900 dark:text-white">Hora:</span> 
+              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.hora ?? '—' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5">
+              <span class="font-medium text-gray-900 dark:text-white">ID de trabajo:</span> 
+              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.workId ?? '—' }}</span>
+            </div>
+            } @else {
+            <div class="flex justify-between items-center py-0.5">
+              <span class="font-medium text-gray-900 dark:text-white">Modelo:</span> 
+              <span class="text-gray-600 dark:text-gray-300 font-mono">KR-8900</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5">
+              <span class="font-medium text-gray-900 dark:text-white">Fecha:</span> 
+              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.fecha ?? '—' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5">
+              <span class="font-medium text-gray-900 dark:text-white">Hora:</span> 
+              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.hora ?? '—' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5">
+              <span class="font-medium text-gray-900 dark:text-white">ID de trabajo:</span> 
+              <span class="text-gray-600 dark:text-gray-300 font-mono">{{ r.workId ?? '—' }}</span>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- Mediciones Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0">
+          <h3 class="text-base font-bold text-center text-gray-900 dark:text-white mb-3">Mediciones</h3>
+          <div class="flex-1 flex items-center justify-center">
+            <div class="flex flex-col sm:flex-row items-center gap-2">
+              <span
+                class="inline-flex items-center px-3 py-2 text-base font-medium rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-sm">
+                PD <span class="font-bold ml-2">{{ r.PD ?? '—' }}</span>
+              </span>
+              <span
+                class="inline-flex items-center px-3 py-2 text-base font-medium rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 shadow-sm">
+                VD <span class="font-bold ml-2">{{ r.VD ?? '—' }}</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
