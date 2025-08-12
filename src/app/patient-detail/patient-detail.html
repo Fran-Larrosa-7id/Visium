@@ -21,10 +21,16 @@
 
       <div class="flex items-center gap-3">
         <button
-          class="group relative inline-flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md"
+          class="group relative inline-flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl border border-teal-300 bg-teal-50 hover:bg-teal-100 text-teal-900 dark:text-teal-100 dark:bg-teal-900/30 dark:border-teal-600 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md"
           (click)="loadLatestFrom(linked())">
-          <i class="fa-solid fa-arrows-rotate text-main"></i>
-          <span class="text-gray-700 dark:text-gray-300">Actualizar</span>
+          <i class="fa-solid fa-arrows-rotate text-teal-600 dark:text-teal-400"></i>
+          <span>Actualizar</span>
+        </button>
+        
+        <button
+          class="group relative inline-flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl border border-green-300 bg-green-50 hover:bg-green-100 text-green-900 dark:text-green-100 dark:bg-green-900/30 dark:border-green-600 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md">
+          <i class="fa-solid fa-floppy-disk text-green-600 dark:text-green-400"></i>
+          <span>Guardar</span>
         </button>
         <!-- TODO: A futuro -->
         <!-- <button (click)="exportJSON()"
@@ -111,12 +117,16 @@
         <!-- Mediciones Card -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-4">
           <h3 class="text-lg font-bold text-center text-gray-900 dark:text-white mb-4">Mediciones</h3>
-          <div class="space-y-2 text-sm">
-            <div><span class="font-medium text-gray-900 dark:text-white">PD:</span> <span
-                class="text-gray-600 dark:text-gray-300">{{ r.PD ?? '—' }}</span></div>
-            <div><span class="font-medium text-gray-900 dark:text-white">VD:</span> <span
-                class="text-gray-600 dark:text-gray-300">{{ r.VD ?? '—' }}</span></div>
-          </div>
+                  <div class="flex items-center gap-3">
+          <span
+            class="inline-flex items-center px-3 py-1.5 text-[1rem] font-medium rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+            PD <span class="font-bold">{{ r.PD ?? '—' }}</span>
+          </span>
+          <span
+            class="inline-flex items-center px-3 py-1.5 text-[1rem] font-medium rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+            VD <span class="font-bold">{{ r.VD ?? '—' }}</span>
+          </span>
+        </div>
         </div>
       </div>
 
@@ -165,42 +175,42 @@
                     <td
                       class="px-2 py-1.5 text-center font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">
                       H</td>
-                    <td class="px-2 py-1.5 text-center text-gray-900 dark:text-white">{{ r.kerato?.OD?.H?.D ?? '—' }}
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OD?.H?.D ?? '—' }}
                     </td>
                     <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OD?.H?.MM
                       ?? '—' }}</td>
-                    <td class="px-2 py-1.5 text-center text-gray-900 dark:text-white">{{ r.kerato?.OD?.H?.A ?? '—' }}
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OD?.H?.A ?? '—' }}
                     </td>
                   </tr>
                   <tr class="border-b border-gray-200 dark:border-gray-600">
                     <td
-                      class="px-2 py-1.5 text-center font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">
+                      class="px-2 py-1.5 text-center font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">
                       V</td>
-                    <td class="px-2 py-1.5 text-center text-gray-900 dark:text-white">{{ r.kerato?.OD?.V?.D ?? '—' }}
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OD?.V?.D ?? '—' }}
                     </td>
                     <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OD?.V?.MM
                       ?? '—' }}</td>
-                    <td class="px-2 py-1.5 text-center text-gray-900 dark:text-white">{{ r.kerato?.OD?.V?.A ?? '—' }}
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OD?.V?.A ?? '—' }}
                     </td>
                   </tr>
                   <tr class="border-b border-gray-200 dark:border-gray-600">
                     <td
                       class="px-2 py-1.5 text-center font-bold bg-yellow-100 dark:bg-yellow-800/50 text-yellow-900 dark:text-yellow-100">
                       AVE</td>
-                    <td class="px-2 py-1.5 text-center font-semibold text-gray-900 dark:text-white">{{
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{
                       r.kerato?.OD?.AVE?.D ?? '—' }}</td>
                     <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OD?.AVE?.MM
                       ?? '—' }}</td>
-                    <td class="px-2 py-1.5 text-center font-semibold text-gray-900 dark:text-white">{{
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{
                       r.kerato?.OD?.AVE?.A ?? '—' }}</td>
                   </tr>
                   <tr>
                     <td
                       class="px-2 py-1.5 text-center font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">
                       CYL</td>
-                    <td class="px-2 py-1.5 text-center font-bold  ">{{ r.cyl.OD ?? '—' }}</td>
+                    <td class="px-2 py-1.5 text-center font-bold bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">{{ r.cyl.OD ?? '—' }}</td>
                     <td class="px-2 py-1.5 text-center"></td>
-                    <td class="px-2 py-1.5 text-center text-gray-900 dark:text-white">{{ r.kerato?.OD?.AVE?.A ?? '—' }}
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OD?.AVE?.A ?? '—' }}
                     </td>
                   </tr>
                 </tbody>
@@ -251,44 +261,44 @@
                 <tbody class="bg-gray-50 dark:bg-gray-700">
                   <tr class="border-b border-gray-200 dark:border-gray-600">
                     <td
-                      class="px-2 py-1.5 text-center font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">
+                      class="px-2 py-1.5 text-center font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">
                       H</td>
-                    <td class="px-2 py-1.5 text-center text-gray-900 dark:text-white">{{ r.kerato?.OI?.H?.D ?? '—' }}
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OI?.H?.D ?? '—' }}
                     </td>
                     <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OI?.H?.MM
                       ?? '—' }}</td>
-                    <td class="px-2 py-1.5 text-center text-gray-900 dark:text-white">{{ r.kerato?.OI?.H?.A ?? '—' }}
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OI?.H?.A ?? '—' }}
                     </td>
                   </tr>
                   <tr class="border-b border-gray-200 dark:border-gray-600">
                     <td
-                      class="px-2 py-1.5 text-center font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">
+                      class="px-2 py-1.5 text-center font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">
                       V</td>
-                    <td class="px-2 py-1.5 text-center text-gray-900 dark:text-white">{{ r.kerato?.OI?.V?.D ?? '—' }}
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OI?.V?.D ?? '—' }}
                     </td>
                     <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OI?.V?.MM
                       ?? '—' }}</td>
-                    <td class="px-2 py-1.5 text-center text-gray-900 dark:text-white">{{ r.kerato?.OI?.V?.A ?? '—' }}
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OI?.V?.A ?? '—' }}
                     </td>
                   </tr>
                   <tr class="border-b border-gray-200 dark:border-gray-600">
                     <td
                       class="px-2 py-1.5 text-center font-bold bg-yellow-100 dark:bg-yellow-800/50 text-yellow-900 dark:text-yellow-100">
                       AVE</td>
-                    <td class="px-2 py-1.5 text-center font-semibold text-gray-900 dark:text-white">{{
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{
                       r.kerato?.OI?.AVE?.D ?? '—' }}</td>
                     <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OI?.AVE?.MM
                       ?? '—' }}</td>
-                    <td class="px-2 py-1.5 text-center font-semibold text-gray-900 dark:text-white">{{
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{
                       r.kerato?.OI?.AVE?.A ?? '—' }}</td>
                   </tr>
                   <tr>
                     <td
                       class="px-2 py-1.5 text-center font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">
                       CYL</td>
-                    <td class="px-2 py-1.5 text-center font-bold ">{{ r.cyl.OI ?? '—' }}</td>
+                    <td class="px-2 py-1.5 text-center font-bold bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">{{ r.cyl.OI ?? '—' }}</td>
                     <td class="px-2 py-1.5 text-center"></td>
-                    <td class="px-2 py-1.5 text-center text-gray-900 dark:text-white">{{ r.kerato?.OI?.AVE?.A ?? '—' }}
+                    <td class="px-2 py-1.5 text-center font-bold text-gray-900 dark:text-white">{{ r.kerato?.OI?.AVE?.A ?? '—' }}
                     </td>
                   </tr>
                 </tbody>
