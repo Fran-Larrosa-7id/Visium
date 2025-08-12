@@ -22,9 +22,9 @@
       <div class="flex items-center gap-3">
         <label
           class="group relative inline-flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md">
-          <input #fileInput type="file" class="hidden" accept=".dat" multiple (change)="onFiles(fileInput.files)" />
+          <input #fileInput type="file" class="hidden" accept=".dat" multiple (change)="loadLatestFrom(linked())" />
           <i class="fa-solid fa-arrows-rotate text-main"></i>
-          <span class="text-gray-700 dark:text-gray-300">Refrescar</span>
+          <span class="text-gray-700 dark:text-gray-300">Actualizar</span>
         </label>
         <!-- TODO: A futuro -->
         <!-- <button (click)="exportJSON()"
@@ -34,6 +34,21 @@
           </svg>
           JSON
         </button> -->
+        @if(!isDirectory()) {
+        <button class="px-3 py-1.5 text-sm rounded-lg border border-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-600 dark:text-gray-300" (click)="linkFolder()">
+          <i class="fa-solid fa-folder-open text-main"></i>
+          Vincular carpeta .dat
+        </button>
+        }
+
+        @if(needsPermission()){
+        <button
+          class="px-3 py-1.5 text-sm rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100"
+          (click)="grantAccess()">
+          <i class="fa-solid fa-lock-open text-main"></i>
+          Permitir acceso a la carpeta
+        </button>
+        }
       </div>
     </div>
   </div>
@@ -87,14 +102,22 @@
             <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
               <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">OD</td>
-                <td class="px-4 py-3 text-right font-mono text-base font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100">{{ r.OD.S ?? '—' }}</td>
-                <td class="px-4 py-3 text-right font-mono text-base font-bold bg-orange-50 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">{{ r.OD.C ?? '—' }}</td>
+                <td
+                  class="px-4 py-3 text-right font-mono text-base font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100">
+                  {{ r.OD.S ?? '—' }}</td>
+                <td
+                  class="px-4 py-3 text-right font-mono text-base font-bold bg-orange-50 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">
+                  {{ r.OD.C ?? '—' }}</td>
                 <td class="px-4 py-3 text-right font-mono text-gray-900 dark:text-white">{{ r.OD.A ?? '—' }}</td>
               </tr>
               <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">OI</td>
-                <td class="px-4 py-3 text-right font-mono text-base font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100">{{ r.OI.S ?? '—' }}</td>
-                <td class="px-4 py-3 text-right font-mono text-base font-bold bg-orange-50 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">{{ r.OI.C ?? '—' }}</td>
+                <td
+                  class="px-4 py-3 text-right font-mono text-base font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100">
+                  {{ r.OI.S ?? '—' }}</td>
+                <td
+                  class="px-4 py-3 text-right font-mono text-base font-bold bg-orange-50 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">
+                  {{ r.OI.C ?? '—' }}</td>
                 <td class="px-4 py-3 text-right font-mono text-gray-900 dark:text-white">{{ r.OI.A ?? '—' }}</td>
               </tr>
             </tbody>
@@ -126,7 +149,9 @@
                 <tr>
                   <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Medida</th>
                   <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300">D</th>
-                  <th class="px-4 py-2 text-center font-semibold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/30">MM</th>
+                  <th
+                    class="px-4 py-2 text-center font-semibold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/30">
+                    MM</th>
                   <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300">A</th>
                 </tr>
               </thead>
@@ -134,20 +159,28 @@
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">H</td>
                   <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OD.H.D ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono font-bold text-lg text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/20">{{ k.OD.H.MM ?? '—' }}</td>
+                  <td
+                    class="px-4 py-2 text-center font-mono font-bold text-lg text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/20">
+                    {{ k.OD.H.MM ?? '—' }}</td>
                   <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OD.H.A ?? '—' }}</td>
                 </tr>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">V</td>
                   <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OD.V.D ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono font-bold text-lg text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/20">{{ k.OD.V.MM ?? '—' }}</td>
+                  <td
+                    class="px-4 py-2 text-center font-mono font-bold text-lg text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/20">
+                    {{ k.OD.V.MM ?? '—' }}</td>
                   <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OD.V.A ?? '—' }}</td>
                 </tr>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 bg-gray-25 dark:bg-gray-750">
                   <td class="px-4 py-2 font-bold text-gray-900 dark:text-white">AVE</td>
-                  <td class="px-4 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ k.OD.AVE.D ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono font-bold text-xl text-teal-800 dark:text-teal-200 bg-teal-100 dark:bg-teal-900/40 border-2 border-teal-200 dark:border-teal-700">{{ k.OD.AVE.MM ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ k.OD.AVE.A ?? '—' }}</td>
+                  <td class="px-4 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ k.OD.AVE.D
+                    ?? '—' }}</td>
+                  <td
+                    class="px-4 py-2 text-center font-mono font-bold text-xl text-teal-800 dark:text-teal-200 bg-teal-100 dark:bg-teal-900/40 border-2 border-teal-200 dark:border-teal-700">
+                    {{ k.OD.AVE.MM ?? '—' }}</td>
+                  <td class="px-4 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ k.OD.AVE.A
+                    ?? '—' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -184,20 +217,26 @@
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">H</td>
                   <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OI.H.D ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono text-lg font-bold bg-teal-50 dark:bg-teal-900/30 text-teal-900 dark:text-teal-100">{{ k.OI.H.MM ?? '—' }}</td>
+                  <td
+                    class="px-4 py-2 text-center font-mono text-lg font-bold bg-teal-50 dark:bg-teal-900/30 text-teal-900 dark:text-teal-100">
+                    {{ k.OI.H.MM ?? '—' }}</td>
                   <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OI.H.A ?? '—' }}</td>
                 </tr>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">V</td>
                   <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OI.V.D ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono text-lg font-bold bg-teal-50 dark:bg-teal-900/30 text-teal-900 dark:text-teal-100">{{ k.OI.V.MM ?? '—' }}</td>
+                  <td
+                    class="px-4 py-2 text-center font-mono text-lg font-bold bg-teal-50 dark:bg-teal-900/30 text-teal-900 dark:text-teal-100">
+                    {{ k.OI.V.MM ?? '—' }}</td>
                   <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OI.V.A ?? '—' }}</td>
                 </tr>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 bg-gray-25 dark:bg-gray-750">
                   <td class="px-4 py-2 font-bold text-gray-900 dark:text-white">AVE</td>
                   <td class="px-4 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ k.OI.AVE.D
                     ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono text-xl font-bold bg-teal-100 dark:bg-teal-800/50 text-teal-900 dark:text-teal-100 border-2 border-teal-200 dark:border-teal-600">{{ k.OI.AVE.MM
+                  <td
+                    class="px-4 py-2 text-center font-mono text-xl font-bold bg-teal-100 dark:bg-teal-800/50 text-teal-900 dark:text-teal-100 border-2 border-teal-200 dark:border-teal-600">
+                    {{ k.OI.AVE.MM
                     ?? '—' }}</td>
                   <td class="px-4 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ k.OI.AVE.A
                     ?? '—' }}</td>
@@ -213,11 +252,15 @@
         <div class="flex items-center gap-6">
           <div class="text-sm">
             <span class="text-gray-500 dark:text-gray-400">Cyl (OD):</span>
-            <span class="ml-2 px-2 py-1 font-mono font-bold text-orange-900 dark:text-orange-100 bg-orange-50 dark:bg-orange-900/30 rounded">{{ r.cyl.OD ?? '—' }}</span>
+            <span
+              class="ml-2 px-2 py-1 font-mono font-bold text-orange-900 dark:text-orange-100 bg-orange-50 dark:bg-orange-900/30 rounded">{{
+              r.cyl.OD ?? '—' }}</span>
           </div>
           <div class="text-sm">
             <span class="text-gray-500 dark:text-gray-400">Cyl (OI):</span>
-            <span class="ml-2 px-2 py-1 font-mono font-bold text-orange-900 dark:text-orange-100 bg-orange-50 dark:bg-orange-900/30 rounded">{{ r.cyl.OI ?? '—' }}</span>
+            <span
+              class="ml-2 px-2 py-1 font-mono font-bold text-orange-900 dark:text-orange-100 bg-orange-50 dark:bg-orange-900/30 rounded">{{
+              r.cyl.OI ?? '—' }}</span>
           </div>
         </div>
 
