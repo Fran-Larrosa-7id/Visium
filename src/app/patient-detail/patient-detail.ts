@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { DatParserService } from '../services/data-parser.service';
 import { AutoRefraction, Patient } from '../models/patient.interface';
 import { FileService } from '../services/file.service';
+import { RefractionDataService } from '../services/refraction-data.service';
 
 const PATH = 'C:\\archivos\\dat';
 
@@ -18,7 +19,8 @@ export class PatientDetail implements OnInit {
   patientSignal = signal<Patient | null>(null);
   refracciones = signal<AutoRefraction[]>([]);
   private parser = new DatParserService();
-  private _fileSvc = inject(FileService)
+  private _fileSvc = inject(FileService);
+  private refractionDataSvc = inject(RefractionDataService);
   busy = signal(false);
   needsPermission = signal(false);
   linked = signal<FileSystemDirectoryHandle | null>(null);
@@ -30,6 +32,17 @@ export class PatientDetail implements OnInit {
   hc = signal<string>('');
   loadPatient = effect(() => {
     this.patientSignal.set(this.patient());
+  });
+
+  // Efecto para escuchar datos del historial
+  loadHistoryData = effect(() => {
+    const historyRefraction = this.refractionDataSvc.currentRefraction();
+    if (historyRefraction) {
+      // Mostrar los datos del historial en la tabla
+      this.refracciones.set([historyRefraction]);
+      // Limpiar el servicio después de usar los datos
+      this.refractionDataSvc.clearRefraction();
+    }
   });
 
 
@@ -160,6 +173,8 @@ export class PatientDetail implements OnInit {
     const writable = await fileHandle.createWritable();
     await writable.write(content);
     await writable.close();
+    // Notify that a file was saved for immediate change detection
+    this.refractionDataSvc.notifyFileSaved();
     this.showMessageSave.set(true);
     setTimeout(() => this.showMessageSave.set(false), 2000);
   }

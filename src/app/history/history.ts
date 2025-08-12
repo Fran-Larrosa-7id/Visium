@@ -1,7 +1,8 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FileService } from '../services/file.service';
 import { DatParserService } from '../services/data-parser.service';
+import { RefractionDataService } from '../services/refraction-data.service';
 import { AutoRefraction } from '../models/patient.interface';
 
 interface HistoryFile {
@@ -20,6 +21,7 @@ interface HistoryFile {
 export class History implements OnInit {
   private _fileSvc = inject(FileService);
   private parser = new DatParserService();
+  private refractionDataSvc = inject(RefractionDataService);
   
   files = signal<HistoryFile[]>([]);
   loading = signal(false);
@@ -28,9 +30,15 @@ export class History implements OnInit {
 
   async ngOnInit() {
     await this.loadSaveFolderAndFiles();
-    // Cargar archivos cada 5 segundos para detectar nuevos archivos guardados
-    setInterval(() => this.loadHistoryFiles(), 5000);
   }
+
+  // Efecto para detectar cuando se guardan nuevos archivos
+  detectNewFiles = effect(() => {
+    // Escuchar cambios en filesSaved del servicio
+    this.refractionDataSvc.filesSaved();
+    // Recargar archivos cuando se detecte un nuevo guardado
+    this.loadHistoryFiles();
+  });
 
   async loadSaveFolderAndFiles() {
     const folder = await this._fileSvc.getCurrentSaveDirectory();
@@ -87,29 +95,14 @@ export class History implements OnInit {
         const refraction = this.parser.parseDat(fileData.text);
         this.selectedFile.set(filename);
         
-        // Por ahora mostramos en console - más adelante podemos emitir un evento
-        console.log('Archivo seleccionado:', filename);
-        console.log('Datos de refracción:', refraction);
+        // Enviar los datos al servicio compartido para que PatientDetail los muestre
+        this.refractionDataSvc.setRefractionFromHistory(refraction);
         
-        // Aquí puedes mostrar los datos en una modal o comunicar con otros componentes
-        this.showRefractionData(refraction, filename);
+        console.log('Archivo del historial cargado:', filename);
       }
     } catch (error) {
       console.error('Error reading file:', error);
     }
-  }
-
-  private showRefractionData(refraction: AutoRefraction, filename: string) {
-    // Por ahora solo mostramos una alerta con información básica
-    const message = `
-      Archivo: ${filename}
-      Fecha: ${refraction.fecha || 'No disponible'}
-      Hora: ${refraction.hora || 'No disponible'}
-      OD: S${refraction.OD?.S || '?'} C${refraction.OD?.C || '?'} A${refraction.OD?.A || '?'}
-      OI: S${refraction.OI?.S || '?'} C${refraction.OI?.C || '?'} A${refraction.OI?.A || '?'}
-      Equipo: ${refraction.device?.model || 'No disponible'}
-    `;
-    alert(message);
   }
 
   formatFileSize(bytes: number): string {
