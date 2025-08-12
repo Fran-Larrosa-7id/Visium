@@ -16,7 +16,7 @@ import { History } from './history/history';
 export class App {
   protected readonly title = signal('mockOjos');
   patients = signal<Patient[]>(MOCK_PATIENTS);
-  selectedId = signal<number | null>(MOCK_PATIENTS[0]?.id ?? null);
+  selectedId = signal<number | null>(null);
   selected = computed(() => this.patients().find(p => p.id === this.selectedId()) ?? null);
   
   // Dark mode functionality

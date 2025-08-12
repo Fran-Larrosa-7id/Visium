@@ -1,3 +1,4 @@
+// ...existing code...
 import { Component, effect, inject, input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DatParserService } from '../services/data-parser.service';
@@ -23,6 +24,9 @@ export class PatientDetail implements OnInit {
   linked = signal<FileSystemDirectoryHandle | null>(null);
   isDirectory = signal<boolean>(false);
   showMessage = signal<boolean>(false);
+  showMessageSave = signal<boolean>(false);
+  name = signal<string>('');
+  hc = signal<string>('');
   loadPatient = effect(() => {
     this.patientSignal.set(this.patient());
   });
@@ -125,5 +129,95 @@ export class PatientDetail implements OnInit {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = filename; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 500);
+  }
+
+  public async saveDatFile() {
+    const dir = this.linked();
+    if (!dir) { alert('Primero debe vincular una carpeta'); return; }
+    const r = this.refracciones()[0];
+    if (!r) { alert('No hay datos para guardar'); return; }
+    const patient = this.patientSignal();
+    const filename = this.buildDatFilename(r, patient);
+    const content = this.serializeDat(r);
+    const perm = await this._fileSvc.verifyPermission(dir, true);
+    if (!perm) { alert('No hay permiso de escritura en la carpeta'); return; }
+    const fileHandle = await (dir as any).getFileHandle(filename, { create: true });
+    const writable = await fileHandle.createWritable();
+    await writable.write(content);
+    await writable.close();
+    this.showMessageSave.set(true);
+    setTimeout(() => this.showMessageSave.set(false), 2000);
+  }
+
+  private serializeDat(r: AutoRefraction): string {
+    const lines = [];
+    lines.push(r.fecha ?? '');
+    lines.push(r.hora ?? '');
+    lines.push(r.PD ?? '');
+    lines.push(r.VD ?? '');
+    lines.push(r.OD?.S ?? '');
+    lines.push(r.OD?.C ?? '');
+    lines.push(r.OD?.A ?? '');
+    lines.push(r.se?.OD ?? '');
+    lines.push(r.OI?.S ?? '');
+    lines.push(r.OI?.C ?? '');
+    lines.push(r.OI?.A ?? '');
+    lines.push(r.se?.OI ?? '');
+    if (r.kerato?.OD) {
+      lines.push(r.kerato.OD.H.D ?? '');
+      lines.push(r.kerato.OD.H.MM ?? '');
+      lines.push(r.kerato.OD.H.A ?? '');
+      lines.push(r.kerato.OD.V.D ?? '');
+      lines.push(r.kerato.OD.V.MM ?? '');
+      lines.push(r.kerato.OD.V.A ?? '');
+      lines.push(r.kerato.OD.AVE.D ?? '');
+      lines.push(r.kerato.OD.AVE.MM ?? '');
+      lines.push(r.kerato.OD.AVE.A ?? '');
+      lines.push(r.cyl?.OD ?? '');
+    }
+    if (r.kerato?.OI) {
+      lines.push(r.kerato.OI.H.D ?? '');
+      lines.push(r.kerato.OI.H.MM ?? '');
+      lines.push(r.kerato.OI.H.A ?? '');
+      lines.push(r.kerato.OI.V.D ?? '');
+      lines.push(r.kerato.OI.V.MM ?? '');
+      lines.push(r.kerato.OI.V.A ?? '');
+      lines.push(r.kerato.OI.AVE.D ?? '');
+      lines.push(r.kerato.OI.AVE.MM ?? '');
+      lines.push(r.kerato.OI.AVE.A ?? '');
+      lines.push(r.cyl?.OI ?? '');
+    }
+    if (r.device) lines.push(`${r.device.model}   ${r.device.fw ?? ''}`.trim());
+    lines.push(r.workId ?? '');
+    return lines.join('\n');
+  }
+
+  private buildDatFilename(r: AutoRefraction, patient: Patient | null): string {
+    const model = r.device?.model ?? '----';
+    const workId = r.workId ?? '----';
+    let historia = patient?.hc ?? '----';
+    let anio = '----', mes = '--', dia = '--', hora = '--', min = '--';
+    if (r.fecha) {
+      const f = r.fecha.split('_');
+      if (f.length === 3) { anio = f[0]; mes = f[1]; dia = f[2]; }
+    }
+    if (r.hora) {
+      const m = r.hora.match(/(AM|PM)?\s*(\d{2}):(\d{2})/i);
+      if (m) { hora = m[2]; min = m[3]; }
+    }
+    if (this.hc()) {
+      historia = this.hc().trim().toUpperCase();
+    }
+    
+    let apellido = '----';
+    if (patient?.nombre) {
+      const parts = patient.nombre.split(',');
+      if (parts.length > 0) {
+        apellido = (parts[0].trim().toUpperCase() + '----').slice(0, 4);
+      }
+    } else if (this.name()) {
+      apellido = (this.name().trim().toUpperCase() + '----').slice(0, 4);
+    }
+    return `${model}-${workId}-${anio}-${mes}-${dia}-${hora}-${min}-${historia}-${apellido}.dat`;
   }
 }
