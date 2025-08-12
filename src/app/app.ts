@@ -33,11 +33,11 @@ export class App {
   }
   constructor() {
     // Initialize dark mode based on user preference or system setting
-    const isDark = localStorage.getItem('darkMode') === 'true' || 
-                   (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    // const isDark = localStorage.getItem('darkMode') === 'true' || 
+    //                (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
     
-    this.isDarkMode.set(isDark);
-    document.documentElement.classList.toggle('dark', isDark);
+    // this.isDarkMode.set(isDark);
+    // document.documentElement.classList.toggle('dark', isDark);
   }
   
   onSelectPatient = (id:any) => {
