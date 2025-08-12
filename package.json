@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "build-g": "ng build --configuration production --base-href \"/mockOjos/\"",
+    "deploy": "npx angular-cli-ghpages --dir=dist/mockOjos/browser"
   },
   "prettier": {
     "overrides": [
