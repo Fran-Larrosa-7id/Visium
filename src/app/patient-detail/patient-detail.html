@@ -85,199 +85,179 @@
         </div>
       </div>
 
-      <!-- Main refraction table -->
-      <div
-        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden shadow-sm">
-        <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-          <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Refracción Principal</h3>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead class="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Ojo</th>
-                <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Esf (S)</th>
-                <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Cil (C)</th>
-                <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Eje (A)</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">OD</td>
-                <td
-                  class="px-4 py-3 text-right font-mono text-base font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100">
-                  {{ r.OD.S ?? '—' }}</td>
-                <td
-                  class="px-4 py-3 text-right font-mono text-base font-bold bg-orange-50 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">
-                  {{ r.OD.C ?? '—' }}</td>
-                <td class="px-4 py-3 text-right font-mono text-gray-900 dark:text-white">{{ r.OD.A ?? '—' }}</td>
-              </tr>
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">OI</td>
-                <td
-                  class="px-4 py-3 text-right font-mono text-base font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100">
-                  {{ r.OI.S ?? '—' }}</td>
-                <td
-                  class="px-4 py-3 text-right font-mono text-base font-bold bg-orange-50 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">
-                  {{ r.OI.C ?? '—' }}</td>
-                <td class="px-4 py-3 text-right font-mono text-gray-900 dark:text-white">{{ r.OI.A ?? '—' }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Keratometry section -->
-      <div *ngIf="r.kerato as k" class="grid md:grid-cols-2 gap-6">
-        <!-- OD Keratometry -->
-        <div
-          class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden shadow-sm">
-          <div
-            class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-b border-gray-200 dark:border-gray-600">
-            <div class="flex items-center gap-2">
-              <div class="h-6 w-6 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                <span class="text-xs font-bold text-blue-700 dark:text-blue-300">OD</span>
-              </div>
-              <span class="text-sm font-semibold text-gray-900 dark:text-white">Ojo Derecho</span>
+      <!-- Patient and Equipment Info -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Paciente Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-4">
+          <h3 class="text-lg font-bold text-center text-gray-900 dark:text-white mb-4">Paciente</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">Nombre</label>
+              <div class="h-8 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"></div>
             </div>
-            <span
-              class="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded-lg bg-teal-100 dark:bg-teal-800/50 text-teal-900 dark:text-teal-100 border border-teal-200 dark:border-teal-600">
-              SE: {{ r.se.OD ?? '—' }}
-            </span>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Medida</th>
-                  <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300">D</th>
-                  <th
-                    class="px-4 py-2 text-center font-semibold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/30">
-                    MM</th>
-                  <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300">A</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">H</td>
-                  <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OD.H.D ?? '—' }}</td>
-                  <td
-                    class="px-4 py-2 text-center font-mono font-bold text-lg text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/20">
-                    {{ k.OD.H.MM ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OD.H.A ?? '—' }}</td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">V</td>
-                  <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OD.V.D ?? '—' }}</td>
-                  <td
-                    class="px-4 py-2 text-center font-mono font-bold text-lg text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/20">
-                    {{ k.OD.V.MM ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OD.V.A ?? '—' }}</td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 bg-gray-25 dark:bg-gray-750">
-                  <td class="px-4 py-2 font-bold text-gray-900 dark:text-white">AVE</td>
-                  <td class="px-4 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ k.OD.AVE.D
-                    ?? '—' }}</td>
-                  <td
-                    class="px-4 py-2 text-center font-mono font-bold text-xl text-teal-800 dark:text-teal-200 bg-teal-100 dark:bg-teal-900/40 border-2 border-teal-200 dark:border-teal-700">
-                    {{ k.OD.AVE.MM ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ k.OD.AVE.A
-                    ?? '—' }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">Historia clínica</label>
+              <div class="h-8 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"></div>
+            </div>
           </div>
         </div>
 
-        <!-- OI Keratometry -->
-        <div
-          class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden shadow-sm">
-          <div
-            class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-gray-200 dark:border-gray-600">
-            <div class="flex items-center gap-2">
-              <div class="h-6 w-6 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
-                <span class="text-xs font-bold text-green-700 dark:text-green-300">OI</span>
-              </div>
-              <span class="text-sm font-semibold text-gray-900 dark:text-white">Ojo Izquierdo</span>
-            </div>
-            <span
-              class="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded-lg bg-teal-100 dark:bg-teal-800/50 text-teal-900 dark:text-teal-100 border border-teal-200 dark:border-teal-600">
-              SE: {{ r.se.OI ?? '—' }}
-            </span>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Medida</th>
-                  <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300">D</th>
-                  <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300">MM</th>
-                  <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300">A</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">H</td>
-                  <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OI.H.D ?? '—' }}</td>
-                  <td
-                    class="px-4 py-2 text-center font-mono text-lg font-bold bg-teal-50 dark:bg-teal-900/30 text-teal-900 dark:text-teal-100">
-                    {{ k.OI.H.MM ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OI.H.A ?? '—' }}</td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">V</td>
-                  <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OI.V.D ?? '—' }}</td>
-                  <td
-                    class="px-4 py-2 text-center font-mono text-lg font-bold bg-teal-50 dark:bg-teal-900/30 text-teal-900 dark:text-teal-100">
-                    {{ k.OI.V.MM ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono text-gray-900 dark:text-white">{{ k.OI.V.A ?? '—' }}</td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 bg-gray-25 dark:bg-gray-750">
-                  <td class="px-4 py-2 font-bold text-gray-900 dark:text-white">AVE</td>
-                  <td class="px-4 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ k.OI.AVE.D
-                    ?? '—' }}</td>
-                  <td
-                    class="px-4 py-2 text-center font-mono text-xl font-bold bg-teal-100 dark:bg-teal-800/50 text-teal-900 dark:text-teal-100 border-2 border-teal-200 dark:border-teal-600">
-                    {{ k.OI.AVE.MM
-                    ?? '—' }}</td>
-                  <td class="px-4 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ k.OI.AVE.A
-                    ?? '—' }}</td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- Equipo Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-4">
+          <h3 class="text-lg font-bold text-center text-gray-900 dark:text-white mb-4">Equipo</h3>
+          <div class="space-y-2 text-sm">
+            @if(r.device) {
+              <div><span class="font-medium text-gray-900 dark:text-white">Modelo:</span> <span class="text-gray-600 dark:text-gray-300">{{ r.device.model ?? 'KR-8900' }}</span></div>
+              <div><span class="font-medium text-gray-900 dark:text-white">Fecha:</span> <span class="text-gray-600 dark:text-gray-300">{{ r.fecha ?? '—' }}</span></div>
+              <div><span class="font-medium text-gray-900 dark:text-white">Hora:</span> <span class="text-gray-600 dark:text-gray-300">{{ r.hora ?? '—' }}</span></div>
+            } @else {
+              <div><span class="font-medium text-gray-900 dark:text-white">Modelo:</span> <span class="text-gray-600 dark:text-gray-300">KR-8900</span></div>
+              <div><span class="font-medium text-gray-900 dark:text-white">Fecha:</span> <span class="text-gray-600 dark:text-gray-300">{{ r.fecha ?? '—' }}</span></div>
+              <div><span class="font-medium text-gray-900 dark:text-white">Hora:</span> <span class="text-gray-600 dark:text-gray-300">{{ r.hora ?? '—' }}</span></div>
+            }
           </div>
         </div>
       </div>
 
-      <!-- Summary footer -->
-      <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-        <div class="flex items-center gap-6">
-          <div class="text-sm">
-            <span class="text-gray-500 dark:text-gray-400">Cyl (OD):</span>
-            <span
-              class="ml-2 px-2 py-1 font-mono font-bold text-orange-900 dark:text-orange-100 bg-orange-50 dark:bg-orange-900/30 rounded">{{
-              r.cyl.OD ?? '—' }}</span>
+      <!-- Eyes Data -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Ojo Derecho Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden">
+          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 border-b border-gray-200 dark:border-gray-600">
+            <h3 class="text-lg font-bold text-center text-gray-900 dark:text-white">Ojo Derecho</h3>
           </div>
-          <div class="text-sm">
-            <span class="text-gray-500 dark:text-gray-400">Cyl (OI):</span>
-            <span
-              class="ml-2 px-2 py-1 font-mono font-bold text-orange-900 dark:text-orange-100 bg-orange-50 dark:bg-orange-900/30 rounded">{{
-              r.cyl.OI ?? '—' }}</span>
+          <div class="p-4 space-y-4">
+            <!-- Refraction values in colored boxes -->
+            <div class="grid grid-cols-4 gap-2">
+              <div class="bg-orange-100 dark:bg-orange-900/30 rounded-lg p-3 text-center">
+                <div class="text-xs font-medium text-orange-700 dark:text-orange-300 mb-1">S</div>
+                <div class="text-lg font-bold text-orange-900 dark:text-orange-100">{{ r.OD.S ?? '—' }}</div>
+              </div>
+              <div class="bg-cyan-100 dark:bg-cyan-900/30 rounded-lg p-3 text-center">
+                <div class="text-xs font-medium text-cyan-700 dark:text-cyan-300 mb-1">C</div>
+                <div class="text-lg font-bold text-cyan-900 dark:text-cyan-100">{{ r.OD.C ?? '—' }}</div>
+              </div>
+              <div class="bg-pink-100 dark:bg-pink-900/30 rounded-lg p-3 text-center">
+                <div class="text-xs font-medium text-pink-700 dark:text-pink-300 mb-1">A</div>
+                <div class="text-lg font-bold text-pink-900 dark:text-pink-100">{{ r.OD.A ?? '—' }}</div>
+              </div>
+              <div class="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 text-center">
+                <div class="text-xs font-medium text-green-700 dark:text-green-300 mb-1">SE</div>
+                <div class="text-lg font-bold text-green-900 dark:text-green-100">{{ r.se.OD ?? '—' }}</div>
+              </div>
+            </div>
+
+            @if(r.kerato?.OD) {
+            <!-- Keratometry table -->
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg overflow-hidden">
+              <table class="w-full text-sm">
+                <thead class="bg-green-200 dark:bg-green-800">
+                  <tr>
+                    <th class="px-3 py-2 text-center font-bold text-green-900 dark:text-green-100">D</th>
+                    <th class="px-3 py-2 text-center font-bold text-green-900 dark:text-green-100">MM</th>
+                    <th class="px-3 py-2 text-center font-bold text-green-900 dark:text-green-100">A</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-gray-200 dark:border-gray-600">
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">H</td>
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">{{ r.kerato?.OD?.H?.D ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono font-bold text-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">{{ r.kerato?.OD?.H?.MM ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">{{ r.kerato?.OD?.H?.A ?? '—' }}</td>
+                  </tr>
+                  <tr class="border-b border-gray-200 dark:border-gray-600">
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">V</td>
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">{{ r.kerato?.OD?.V?.D ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono font-bold text-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">{{ r.kerato?.OD?.V?.MM ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">{{ r.kerato?.OD?.V?.A ?? '—' }}</td>
+                  </tr>
+                  <tr class="bg-gray-100 dark:bg-gray-600">
+                    <td class="px-3 py-2 text-center font-bold text-gray-900 dark:text-white">AVE</td>
+                    <td class="px-3 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ r.kerato?.OD?.AVE?.D ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono font-bold text-xl bg-yellow-200 dark:bg-yellow-800/50 text-yellow-900 dark:text-yellow-100 border-2 border-yellow-300 dark:border-yellow-600">{{ r.kerato?.OD?.AVE?.MM ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ r.kerato?.OD?.AVE?.A ?? '—' }}</td>
+                  </tr>
+                  <tr class="bg-gray-200 dark:bg-gray-500">
+                    <td class="px-3 py-2 text-center font-bold text-gray-900 dark:text-white">CYL</td>
+                    <td class="px-3 py-2 text-center font-mono font-bold bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">{{ r.cyl.OD ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center"></td>
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">{{ r.kerato?.OD?.AVE?.A ?? '—' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            }
           </div>
         </div>
 
-        @if(r.device){
-        <div class="text-xs text-gray-500 dark:text-gray-400">
-          <span class="font-medium">Equipo:</span>
-          {{ r.device.model }} {{ r.device.fw }}
-          <span class="text-gray-400 dark:text-gray-500">|</span>
-          <span class="font-medium">Host:</span>
-          <span class="opacity-75 ml-1">{{ r.host }}</span>
-          <span class="text-gray-400 dark:text-gray-500">|</span>
-          <span class="font-medium">Work ID:</span>
-          <span class="opacity-75 ml-1">{{ r.workId }}</span>
+        <!-- Ojo Izquierdo Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden">
+          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 border-b border-gray-200 dark:border-gray-600">
+            <h3 class="text-lg font-bold text-center text-gray-900 dark:text-white">Ojo Izquierdo</h3>
+          </div>
+          <div class="p-4 space-y-4">
+            <!-- Refraction values in colored boxes -->
+            <div class="grid grid-cols-4 gap-2">
+              <div class="bg-orange-100 dark:bg-orange-900/30 rounded-lg p-3 text-center">
+                <div class="text-xs font-medium text-orange-700 dark:text-orange-300 mb-1">S</div>
+                <div class="text-lg font-bold text-orange-900 dark:text-orange-100">{{ r.OI.S ?? '—' }}</div>
+              </div>
+              <div class="bg-cyan-100 dark:bg-cyan-900/30 rounded-lg p-3 text-center">
+                <div class="text-xs font-medium text-cyan-700 dark:text-cyan-300 mb-1">C</div>
+                <div class="text-lg font-bold text-cyan-900 dark:text-cyan-100">{{ r.OI.C ?? '—' }}</div>
+              </div>
+              <div class="bg-pink-100 dark:bg-pink-900/30 rounded-lg p-3 text-center">
+                <div class="text-xs font-medium text-pink-700 dark:text-pink-300 mb-1">A</div>
+                <div class="text-lg font-bold text-pink-900 dark:text-pink-100">{{ r.OI.A ?? '—' }}</div>
+              </div>
+              <div class="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 text-center">
+                <div class="text-xs font-medium text-green-700 dark:text-green-300 mb-1">SE</div>
+                <div class="text-lg font-bold text-green-900 dark:text-green-100">{{ r.se.OI ?? '—' }}</div>
+              </div>
+            </div>
+
+            @if(r.kerato?.OI) {
+            <!-- Keratometry table -->
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg overflow-hidden">
+              <table class="w-full text-sm">
+                <thead class="bg-green-200 dark:bg-green-800">
+                  <tr>
+                    <th class="px-3 py-2 text-center font-bold text-green-900 dark:text-green-100">D</th>
+                    <th class="px-3 py-2 text-center font-bold text-green-900 dark:text-green-100">MM</th>
+                    <th class="px-3 py-2 text-center font-bold text-green-900 dark:text-green-100">A</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-gray-200 dark:border-gray-600">
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">H</td>
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">{{ r.kerato?.OI?.H?.D ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono font-bold text-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">{{ r.kerato?.OI?.H?.MM ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">{{ r.kerato?.OI?.H?.A ?? '—' }}</td>
+                  </tr>
+                  <tr class="border-b border-gray-200 dark:border-gray-600">
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">V</td>
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">{{ r.kerato?.OI?.V?.D ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono font-bold text-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100">{{ r.kerato?.OI?.V?.MM ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">{{ r.kerato?.OI?.V?.A ?? '—' }}</td>
+                  </tr>
+                  <tr class="bg-gray-100 dark:bg-gray-600">
+                    <td class="px-3 py-2 text-center font-bold text-gray-900 dark:text-white">AVE</td>
+                    <td class="px-3 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ r.kerato?.OI?.AVE?.D ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono font-bold text-xl bg-yellow-200 dark:bg-yellow-800/50 text-yellow-900 dark:text-yellow-100 border-2 border-yellow-300 dark:border-yellow-600">{{ r.kerato?.OI?.AVE?.MM ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center font-mono font-semibold text-gray-900 dark:text-white">{{ r.kerato?.OI?.AVE?.A ?? '—' }}</td>
+                  </tr>
+                  <tr class="bg-gray-200 dark:bg-gray-500">
+                    <td class="px-3 py-2 text-center font-bold text-gray-900 dark:text-white">CYL</td>
+                    <td class="px-3 py-2 text-center font-mono font-bold bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100">{{ r.cyl.OI ?? '—' }}</td>
+                    <td class="px-3 py-2 text-center"></td>
+                    <td class="px-3 py-2 text-center font-mono text-gray-900 dark:text-white">{{ r.kerato?.OI?.AVE?.A ?? '—' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            }
+          </div>
         </div>
-        }
       </div>
     </article>
     } @else {
