@@ -16,7 +16,7 @@
   <main class="px-6 py-6">
     <div class="flex gap-6 h-[calc(94.7vh)]">
       <app-patient-list 
-        class="w-80 flex-shrink-0"
+        class="w-52 2xl:w-80"
         [patients]="patients()" 
         [selectedId]="selectedId()" 
         (select)="onSelectPatient($event)">
@@ -27,7 +27,7 @@
         [patient]="selected()">
       </app-patient-detail>
 
-      <app-history class="w-80 flex-shrink-0"></app-history>
+      <app-history class="w-52 2xl:w-80"></app-history>
     </div>
   </main>
 </div>  

@@ -22,6 +22,7 @@ export class PatientDetail implements OnInit {
   needsPermission = signal(false);
   linked = signal<FileSystemDirectoryHandle | null>(null);
   isDirectory = signal<boolean>(false);
+  showMessage = signal<boolean>(false);
   loadPatient = effect(() => {
     this.patientSignal.set(this.patient());
   });
@@ -98,6 +99,18 @@ export class PatientDetail implements OnInit {
     } finally {
       this.busy.set(false);
     }
+  }
+
+  /**
+   * show success message
+   * @param blob 
+   * @param filename 
+   */
+  showSuccessMessage() {
+    this.showMessage.set(true);
+    setTimeout(() => {
+      this.showMessage.set(false);
+    }, 2500);
   }
 
   //TODO: A futuro
