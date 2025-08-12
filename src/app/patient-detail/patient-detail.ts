@@ -44,6 +44,8 @@ export class PatientDetail implements OnInit {
   async linkFolder() {
     const dir = await this._fileSvc.pickDatDirectory();
     if (dir) await this.loadLatestFrom(dir);
+    this.linked.set(dir);
+    this.isDirectory.set(!!dir);
   }
 
 

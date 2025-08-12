@@ -20,12 +20,12 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <label
-          class="group relative inline-flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md">
-          <input #fileInput type="file" class="hidden" accept=".dat" multiple (change)="loadLatestFrom(linked())" />
+        <button
+          class="group relative inline-flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md"
+          (click)="loadLatestFrom(linked())">
           <i class="fa-solid fa-arrows-rotate text-main"></i>
           <span class="text-gray-700 dark:text-gray-300">Actualizar</span>
-        </label>
+        </button>
         <!-- TODO: A futuro -->
         <!-- <button (click)="exportJSON()"
           class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md">
@@ -35,18 +35,20 @@
           JSON
         </button> -->
         @if(!isDirectory()) {
-        <button class="px-3 py-1.5 text-sm rounded-lg border border-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-600 dark:text-gray-300" (click)="linkFolder()">
+        <button
+          class="inline-flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md"
+          (click)="linkFolder()">
           <i class="fa-solid fa-folder-open text-main"></i>
-          Vincular carpeta .dat
+          <span class="text-gray-700 dark:text-gray-300">Vincular carpeta .dat</span>
         </button>
         }
 
         @if(needsPermission()){
         <button
-          class="px-3 py-1.5 text-sm rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100"
+          class="inline-flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 dark:text-amber-100 dark:bg-amber-900/30 dark:border-amber-600 transition-all duration-200 shadow-sm hover:shadow-md"
           (click)="grantAccess()">
           <i class="fa-solid fa-lock-open text-main"></i>
-          Permitir acceso a la carpeta
+          <span>Permitir acceso a la carpeta</span>
         </button>
         }
       </div>
