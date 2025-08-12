@@ -97,8 +97,11 @@ export class PatientDetail implements OnInit {
     this.busy.set(true);
     try {
       const latest = await this._fileSvc.readLatestDatText(dir);
-      if (!latest) return;
-      const data = this.parser.parseDat(latest.text);
+      if (latest === null){
+        this.refracciones.set([]);
+        return;
+      }
+      const data = this.parser.parseDat(latest!.text);
       this.refracciones.set([data]);
     } finally {
       this.busy.set(false);
@@ -208,7 +211,7 @@ export class PatientDetail implements OnInit {
     if (this.hc()) {
       historia = this.hc().trim().toUpperCase();
     }
-    
+
     let apellido = '----';
     if (patient?.nombre) {
       const parts = patient.nombre.split(',');
