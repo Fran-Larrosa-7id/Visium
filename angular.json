@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "mockOjos": {
+    "Visium": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -56,10 +56,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "mockOjos:build:production"
+              "buildTarget": "Visium:build:production"
             },
             "development": {
-              "buildTarget": "mockOjos:build:development"
+              "buildTarget": "Visium:build:development"
             }
           },
           "defaultConfiguration": "development"
