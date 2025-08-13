@@ -8,7 +8,10 @@ export class RefractionDataService {
   
   // Signal para notificar cuando se guarda un archivo nuevo
   private _filesSaved = signal<number>(0);
-  
+
+  // Signal boolean que muestra archivos guardados la primera ves que se vincula la carpeta descargas
+  _firstTimeFilesSaved = signal<boolean>(false);
+
   // Getter público para los datos
   get currentRefraction() {
     return this._currentRefraction.asReadonly();

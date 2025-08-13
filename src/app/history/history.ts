@@ -36,6 +36,8 @@ export class History implements OnInit {
   detectNewFiles = effect(() => {
     // Escuchar cambios en filesSaved del servicio
     this.refractionDataSvc.filesSaved();
+    // Si es la primera vez que se guardan archivos, cargar la carpeta de guardado
+    this.refractionDataSvc._firstTimeFilesSaved();
     // Recargar archivos cuando se detecte un nuevo guardado
     this.loadHistoryFiles();
   });

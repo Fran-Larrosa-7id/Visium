@@ -260,6 +260,8 @@ export class PatientDetail implements OnInit {
     if (dir) {
       this.saveFolder.set(dir);
       await this._fileSvc.saveSaveDirectory(dir); // Guardar en IndexedDB para persistencia
+      // Muestra la lista de archivos guardados
+      this.refractionDataSvc._firstTimeFilesSaved.set(true);
     }
   }
 
