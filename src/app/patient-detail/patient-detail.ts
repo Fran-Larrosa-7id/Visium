@@ -28,6 +28,7 @@ export class PatientDetail implements OnInit {
   isDirectory = signal<boolean>(false);
   showMessage = signal<boolean>(false);
   showMessageSave = signal<boolean>(false);
+  showModal = signal<{ title: string; content: string } | null>(null);
   name = signal<string>('');
   hc = signal<string>('');
   loadPatient = effect(() => {
@@ -47,9 +48,12 @@ export class PatientDetail implements OnInit {
 
 
   async ngOnInit() {
+    this.config();
+  }
+
+  private async config() {
     const dir = await this._fileSvc.restoreDirectory();
     const dirSave = await this._fileSvc.restoreSaveDirectory();
-    if (!dirSave) return;
     if (!dir) return;
     this.isDirectory.set(true);
     this.linked.set(dir);
@@ -114,7 +118,7 @@ export class PatientDetail implements OnInit {
     this.busy.set(true);
     try {
       const latest = await this._fileSvc.readLatestDatText(dir);
-      if (latest === null){
+      if (latest === null) {
         this.refracciones.set([]);
         return;
       }
@@ -154,21 +158,20 @@ export class PatientDetail implements OnInit {
   public async saveDatFile() {
     // Usar carpeta de guardado si está disponible, sino carpeta de lectura
     const saveDir = this.saveFolder();
-    const readDir = this.linked();
-    const dir = saveDir || readDir;
-    
-    if (!dir) { 
-      alert('Primero debe vincular una carpeta'); 
-      return; 
+    const dir = saveDir;
+
+    if (!dir) {
+      this.showModal.set({ title: 'Error', content: 'Primero debe vincular una carpeta' });
+      return;
     }
-    
+
     const r = this.refracciones()[0];
-    if (!r) { alert('No hay datos para guardar'); return; }
+    if (!r) { this.showModal.set({ title: 'Error', content: 'No hay datos para guardar' }); return; }
     const patient = this.patientSignal();
     const filename = this.buildDatFilename(r, patient);
     const content = this.serializeDat(r);
     const perm = await this._fileSvc.verifyPermission(dir, true);
-    if (!perm) { alert('No hay permiso de escritura en la carpeta'); return; }
+    if (!perm) { this.showModal.set({ title: 'Error', content: 'No hay permiso de escritura en la carpeta' }); return; }
     const fileHandle = await (dir as any).getFileHandle(filename, { create: true });
     const writable = await fileHandle.createWritable();
     await writable.write(content);
