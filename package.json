@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "build-g": "ng build --configuration production --base-href \"/mockOjos/\"",
+    "build-g": "ng build --configuration production --base-href \"/Visium/\"",
     "deploy": "npx angular-cli-ghpages --dir=dist/mockOjos/browser"
   },
   "prettier": {
