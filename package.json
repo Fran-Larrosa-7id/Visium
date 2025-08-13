@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build-g": "ng build --configuration production --base-href \"/Visium/\"",
-    "deploy": "npx angular-cli-ghpages --dir=dist/mockOjos/browser"
+    "deploy": "npx angular-cli-ghpages --dir=dist/Visium/browser"
   },
   "prettier": {
     "overrides": [
