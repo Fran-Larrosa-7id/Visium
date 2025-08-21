@@ -307,12 +307,14 @@
             <div>
               <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Nombre</label>
               <input #nombre type="text" placeholder="Ingrese el nombre del paciente"
+                [value]="name()"
                 class="w-full h-8 px-2 text-xs bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200"
                 (input)="name.set(nombre.value)" />
             </div>
             <div>
               <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Historia clínica</label>
               <input #historiaclinic type="text" placeholder="Número de historia clínica"
+                [value]="hc()"
                 class="w-full h-8 px-2 text-xs bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200"
                 (input)="hc.set(historiaclinic.value)" />
             </div>

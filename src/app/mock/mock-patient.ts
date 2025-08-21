@@ -1,4 +1,4 @@
-import { signal, effect } from "@angular/core";
+import { signal } from "@angular/core";
 import { PacienteActual, PacienteAdmitido } from "../models/patient.interface";
 
 // Obtiene el paciente actual desde localStorage

@@ -2,9 +2,10 @@
 import { Component, effect, inject, input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DatParserService } from '../services/data-parser.service';
-import { AutoRefraction, PacienteAdmitido, Patient } from '../models/patient.interface';
+import { AutoRefraction, PacienteAdmitido, PacienteActual, Patient } from '../models/patient.interface';
 import { FileService } from '../services/file.service';
 import { RefractionDataService } from '../services/refraction-data.service';
+import { pacienteActualSignal } from '../mock/mock-patient';
 
 const PATH = 'C:\\archivos\\dat';
 
@@ -31,8 +32,32 @@ export class PatientDetail implements OnInit {
   showModal = signal<{ title: string; content: string } | null>(null);
   name = signal<string>('');
   hc = signal<string>('');
+  lastSelectedPatientHc = signal<string | null>(null); // Para trackear cambios
+  
   loadPatient = effect(() => {
     this.patientSignal.set(this.patient());
+  });
+
+  // Effect para autocompletar campos con paciente actual o seleccionado
+  autoFillPatientData = effect(() => {
+    const selectedPatient = this.patient();
+    const currentPatient = pacienteActualSignal();
+    
+    // Prioridad: paciente seleccionado > paciente actual
+    const patientToFill = selectedPatient || currentPatient;
+    
+    if (patientToFill) {
+      const currentPatientHc = patientToFill.hc;
+      
+      // Si cambió el paciente seleccionado, actualizar siempre
+      const hasPatientChanged = this.lastSelectedPatientHc() !== currentPatientHc;
+      
+      if (hasPatientChanged || (!this.name().trim() && !this.hc().trim())) {
+        this.name.set(`${patientToFill.apellido}, ${patientToFill.nombre}`);
+        this.hc.set(patientToFill.hc);
+        this.lastSelectedPatientHc.set(currentPatientHc);
+      }
+    }
   });
 
   // Efecto para escuchar datos del historial
