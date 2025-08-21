@@ -58,13 +58,23 @@
                   class="inline-flex items-center px-2 py-1 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
                   HC {{ p.hc }}
                 </span>
+                @if(pacienteActual()?.hc === p.hc) {
+                <span
+                  class="inline-flex items-center px-2 py-1 rounded-md bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">
+                  ACTUAL
+                </span>
+                }
               </div>
             </div>
 
-            <div class="ml-3 flex-shrink-0">
-              @if(selectedHc()===p.hc) {
-              <div class="h-2 w-2 rounded-full bg-green-400 dark:bg-green-500"
-                title="Paciente seleccionado"></div>
+            <div class="ml-3 flex-shrink-0 pt-4">
+              @if(pacienteActual()?.hc === p.hc) {
+              <div class="flex items-center justify-center h-7 w-7 rounded-full bg-green-500 dark:bg-green-600"
+                title="Paciente actual">
+                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
               }
             </div>
           </div>

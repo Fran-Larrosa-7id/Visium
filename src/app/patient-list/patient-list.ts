@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, ElementRef, input, output, signal, ViewChild } from '@angular/core';
-import { PacienteAdmitido } from '../models/patient.interface';
+import { PacienteAdmitido, PacienteActual } from '../models/patient.interface';
 @Component({
   selector: 'app-patient-list',
   imports: [CommonModule],
@@ -10,6 +10,7 @@ import { PacienteAdmitido } from '../models/patient.interface';
 export class PatientList {
   patients = input.required<PacienteAdmitido[]>();
   selectedHc = input<string>('');
+  pacienteActual = input<PacienteActual | null>(null);
   select = output<string>();
   query = signal('');
   filtered = computed(() => {

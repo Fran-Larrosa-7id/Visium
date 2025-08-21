@@ -1,11 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { PatientDetail } from './patient-detail/patient-detail';
 import { PatientList } from './patient-list/patient-list';
-import { PacienteAdmitido } from './models/patient.interface';
 import { History } from './history/history';
-import { getPacientesAdmitidos } from './mock/mock-patient';
+import { pacientesAdmitidosSignal, pacienteActualSignal, initializeFromLocalStorage } from './mock/mock-patient';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +13,8 @@ import { getPacientesAdmitidos } from './mock/mock-patient';
 })
 export class App {
   protected readonly title = signal('mockOjos');
-  patients = signal<PacienteAdmitido[]>(getPacientesAdmitidos());
+  patients = pacientesAdmitidosSignal;
+  pacienteActual = pacienteActualSignal;
   selectedHc = signal<string | null>(null);
   selected = computed(() => this.patients().find(p => p.hc === this.selectedHc()) ?? null);
   
@@ -32,6 +31,9 @@ export class App {
     localStorage.setItem('darkMode', newValue.toString());
   }
   constructor() {
+    // Inicializar datos desde localStorage
+    initializeFromLocalStorage();
+    
     // Initialize dark mode based on user preference or system setting
     // const isDark = localStorage.getItem('darkMode') === 'true' || 
     //                (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);

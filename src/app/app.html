@@ -18,7 +18,8 @@
       <app-patient-list 
         class="w-52 2xl:w-80"
         [patients]="patients()" 
-        [selectedHc]="selectedHc() || ''" 
+        [selectedHc]="selectedHc() || ''"
+        [pacienteActual]="pacienteActual()"
         (select)="onSelectPatient($event)">
       </app-patient-list>
 
