@@ -268,8 +268,8 @@ export class PatientDetail implements OnInit {
     }
 
     let apellido = '----';
-    if (patient?.nombre) {
-      const parts = patient.nombre.split(',');
+    if (patient?.apellido) {
+      const parts = patient.apellido.split(',');
       if (parts.length > 0) {
         apellido = (parts[0].trim().toUpperCase() + '----').slice(0, 4);
       }
