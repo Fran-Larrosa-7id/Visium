@@ -1,3 +1,15 @@
+// Para datos en localStorage
+export interface PacienteActual {
+  nombre: string;
+  apellido: string;
+  hc: string;
+}
+
+export interface PacienteAdmitido {
+  nombre: string;
+  apellido: string;
+  hc: string;
+}
 export interface EyeValues { S: string | null; C: string | null; A: string | null; }
 export interface KValue { D: number | null; MM: number | null; A: number | null; }
 export interface KeratoEye { H: KValue; V: KValue; AVE: KValue; }

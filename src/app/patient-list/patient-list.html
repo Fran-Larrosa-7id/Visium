@@ -41,10 +41,10 @@
     <ul class="space-y-3">
       @for (p of filtered(); track $index) {
       <li>
-        <button (click)="select.emit(p.id)" [ngClass]="{
+        <button (click)="select.emit(p.hc)" [ngClass]="{
             'w-full text-left p-4 rounded-xl border transition-all duration-200 group': true,
-            'ring-2 ring-teal-500 border-teal-300 bg-teal-50 dark:bg-teal-900/20': selectedId()===p.id,
-            'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-teal-300': selectedId()!==p.id
+            'ring-2 ring-teal-500 border-teal-300 bg-teal-50 dark:bg-teal-900/20': selectedHc()===p.hc,
+            'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-teal-300': selectedHc()!==p.hc
           }">
 
           <div class="flex items-start justify-between">
@@ -62,7 +62,7 @@
             </div>
 
             <div class="ml-3 flex-shrink-0">
-              @if(selectedId()===p.id) {
+              @if(selectedHc()===p.hc) {
               <div class="h-2 w-2 rounded-full bg-green-400 dark:bg-green-500"
                 title="Paciente seleccionado"></div>
               }

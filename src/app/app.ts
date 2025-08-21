@@ -3,9 +3,9 @@ import { Component, computed, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PatientDetail } from './patient-detail/patient-detail';
 import { PatientList } from './patient-list/patient-list';
-import { Patient } from './models/patient.interface';
-import { MOCK_PATIENTS } from './mock/mock-patient';
+import { PacienteAdmitido } from './models/patient.interface';
 import { History } from './history/history';
+import { getPacientesAdmitidos } from './mock/mock-patient';
 
 @Component({
   selector: 'app-root',
@@ -15,9 +15,9 @@ import { History } from './history/history';
 })
 export class App {
   protected readonly title = signal('mockOjos');
-  patients = signal<Patient[]>(MOCK_PATIENTS);
-  selectedId = signal<number | null>(null);
-  selected = computed(() => this.patients().find(p => p.id === this.selectedId()) ?? null);
+  patients = signal<PacienteAdmitido[]>(getPacientesAdmitidos());
+  selectedHc = signal<string | null>(null);
+  selected = computed(() => this.patients().find(p => p.hc === this.selectedHc()) ?? null);
   
   // Carpeta de guardado compartida entre componentes
   saveFolder = signal<FileSystemDirectoryHandle | null>(null);
@@ -35,13 +35,12 @@ export class App {
     // Initialize dark mode based on user preference or system setting
     // const isDark = localStorage.getItem('darkMode') === 'true' || 
     //                (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    
     // this.isDarkMode.set(isDark);
     // document.documentElement.classList.toggle('dark', isDark);
   }
   
-  onSelectPatient = (id:any) => {
-    this.selectedId.set(id);
+  onSelectPatient = (hc: string) => {
+    this.selectedHc.set(hc);
   };
 
   // Método para actualizar la carpeta de guardado desde patient-detail

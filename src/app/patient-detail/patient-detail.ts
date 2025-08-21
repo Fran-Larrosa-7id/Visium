@@ -2,7 +2,7 @@
 import { Component, effect, inject, input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DatParserService } from '../services/data-parser.service';
-import { AutoRefraction, Patient } from '../models/patient.interface';
+import { AutoRefraction, PacienteAdmitido, Patient } from '../models/patient.interface';
 import { FileService } from '../services/file.service';
 import { RefractionDataService } from '../services/refraction-data.service';
 
@@ -15,8 +15,8 @@ const PATH = 'C:\\archivos\\dat';
   styleUrl: './patient-detail.scss'
 })
 export class PatientDetail implements OnInit {
-  patient = input<Patient | null>(null);
-  patientSignal = signal<Patient | null>(null);
+  patient = input<PacienteAdmitido | null>(null);
+  patientSignal = signal<PacienteAdmitido | null>(null);
   refracciones = signal<AutoRefraction[]>([]);
   private parser = new DatParserService();
   private _fileSvc = inject(FileService);
@@ -225,7 +225,7 @@ export class PatientDetail implements OnInit {
     return lines.join('\n');
   }
 
-  private buildDatFilename(r: AutoRefraction, patient: Patient | null): string {
+  private buildDatFilename(r: AutoRefraction, patient: PacienteAdmitido | null): string {
     const model = r.device?.model ?? '----';
     const workId = r.workId ?? '----';
     let historia = patient?.hc ?? '----';
