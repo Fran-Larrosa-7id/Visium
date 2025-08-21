@@ -6,10 +6,10 @@ export function getPacienteActual(): PacienteActual | null {
   try {
     const data = localStorage.getItem('pacienteActual');
     if (!data) return null;
-    
+
     // Intentar parsear como JSON
     const parsed = JSON.parse(data);
-    
+
     // Validar que tenga las propiedades necesarias
     if (parsed && typeof parsed === 'object' && parsed.nombre && parsed.apellido && parsed.hc) {
       return parsed as PacienteActual;
@@ -31,13 +31,13 @@ export function getPacientesAdmitidos(): PacienteAdmitido[] {
   try {
     const data = localStorage.getItem('pacientesAdmitidos');
     if (!data) return [];
-    
+
     const parsed = JSON.parse(data);
-    
+
     // Validar que sea un array
     if (Array.isArray(parsed)) {
       // Filtrar solo objetos válidos
-      const validPatients = parsed.filter(p => 
+      const validPatients = parsed.filter(p =>
         p && typeof p === 'object' && p.nombre && p.apellido && p.hc
       );
       return validPatients as PacienteAdmitido[];
@@ -64,19 +64,7 @@ export const pacientesAdmitidosSignal = signal<PacienteAdmitido[]>([]);
 export function initializeFromLocalStorage() {
   const pacientes = getPacientesAdmitidos();
   const pacienteActual = getPacienteActual();
-  
-  // Si no hay pacientes, crear datos por defecto
-  if (pacientes.length === 0) {
-    const defaultPatients: PacienteAdmitido[] = [
-      { nombre: "TEST", apellido: "Prueba", hc: "1234567" },
-      { nombre: "Ana", apellido: "García", hc: "2345678" },
-      { nombre: "Luis", apellido: "Martínez", hc: "3456789" }
-    ];
-    setPacientesAdmitidos(defaultPatients);
-  } else {
-    pacientesAdmitidosSignal.set(pacientes);
-  }
-  
+  pacientesAdmitidosSignal.set(pacientes);
   pacienteActualSignal.set(pacienteActual);
 }
 
