@@ -43,8 +43,10 @@
       <li>
         <button (click)="select.emit(p.hc)" [ngClass]="{
             'w-full text-left p-4 rounded-xl border transition-all duration-200 group': true,
-            'ring-2 ring-teal-500 border-teal-300 bg-teal-50 dark:bg-teal-900/20': selectedHc()===p.hc,
-            'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-teal-300': selectedHc()!==p.hc
+            'ring-2 ring-teal-500 border-teal-300 bg-teal-50 dark:bg-teal-900/20': selectedHc()===p.hc && pacienteActual()?.hc !== p.hc,
+            'ring-2 ring-green-500 border-green-300 bg-green-50 dark:bg-green-900/20': pacienteActual()?.hc === p.hc && selectedHc()!==p.hc,
+            'ring-2 ring-cyan-500 border-cyan-300 bg-cyan-50 dark:bg-cyan-900/20': selectedHc()===p.hc && pacienteActual()?.hc === p.hc,
+            'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-teal-300': selectedHc()!==p.hc && pacienteActual()?.hc !== p.hc
           }">
 
           <div class="flex items-start justify-between">
