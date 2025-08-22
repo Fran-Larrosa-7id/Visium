@@ -105,21 +105,21 @@
           <div class="p-4 space-y-4">
             <!-- Refraction values in colored boxes -->
             <div class="grid grid-cols-4 gap-2">
-              <div class="bg-orange-100 dark:bg-orange-900/30 rounded-lg p-3 text-center">
+              <div class="bg-orange-100 dark:bg-orange-900/30 rounded-lg p-3 text-center min-h-[60px] flex flex-col justify-center">
                 <div class="text-xs font-medium text-orange-700 dark:text-orange-300 mb-1">S</div>
-                <div class="text-lg font-bold text-orange-900 dark:text-orange-100">{{ r.OD.S ?? '—' }}</div>
+                <div class="text-lg font-bold text-orange-900 dark:text-orange-100 leading-tight">{{ r.OD.S ?? '—' }}</div>
               </div>
-              <div class="bg-cyan-100 dark:bg-cyan-900/30 rounded-lg p-3 text-center">
+              <div class="bg-cyan-100 dark:bg-cyan-900/30 rounded-lg p-3 text-center min-h-[60px] flex flex-col justify-center">
                 <div class="text-xs font-medium text-cyan-700 dark:text-cyan-300 mb-1">C</div>
-                <div class="text-lg font-bold text-cyan-900 dark:text-cyan-100">{{ r.OD.C ?? '—' }}</div>
+                <div class="text-lg font-bold text-cyan-900 dark:text-cyan-100 leading-tight">{{ r.OD.C ?? '—' }}</div>
               </div>
-              <div class="bg-pink-100 dark:bg-pink-900/30 rounded-lg p-3 text-center">
+              <div class="bg-pink-100 dark:bg-pink-900/30 rounded-lg p-3 text-center min-h-[60px] flex flex-col justify-center">
                 <div class="text-xs font-medium text-pink-700 dark:text-pink-300 mb-1">A</div>
-                <div class="text-lg font-bold text-pink-900 dark:text-pink-100">{{ r.OD.A ?? '—' }}</div>
+                <div class="text-lg font-bold text-pink-900 dark:text-pink-100 leading-tight">{{ r.OD.A ?? '—' }}</div>
               </div>
-              <div class="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 text-center">
+              <div class="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 text-center min-h-[60px] flex flex-col justify-center">
                 <div class="text-xs font-medium text-green-700 dark:text-green-300 mb-1">SE</div>
-                <div class="text-lg font-bold text-green-900 dark:text-green-100">{{ r.se.OD ?? '—' }}</div>
+                <div class="text-lg font-bold text-green-900 dark:text-green-100 leading-tight">{{ r.se.OD ?? '—' }}</div>
               </div>
             </div>
 
@@ -201,21 +201,21 @@
           <div class="p-4 space-y-4">
             <!-- Refraction values in colored boxes -->
             <div class="grid grid-cols-4 gap-2">
-              <div class="bg-orange-100 dark:bg-orange-900/30 rounded-lg p-3 text-center">
+              <div class="bg-orange-100 dark:bg-orange-900/30 rounded-lg p-3 text-center min-h-[60px] flex flex-col justify-center">
                 <div class="text-xs font-medium text-orange-700 dark:text-orange-300 mb-1">S</div>
-                <div class="text-lg font-bold text-orange-900 dark:text-orange-100">{{ r.OI.S ?? '—' }}</div>
+                <div class="text-lg font-bold text-orange-900 dark:text-orange-100 leading-tight">{{ r.OI.S ?? '—' }}</div>
               </div>
-              <div class="bg-cyan-100 dark:bg-cyan-900/30 rounded-lg p-3 text-center">
+              <div class="bg-cyan-100 dark:bg-cyan-900/30 rounded-lg p-3 text-center min-h-[60px] flex flex-col justify-center">
                 <div class="text-xs font-medium text-cyan-700 dark:text-cyan-300 mb-1">C</div>
-                <div class="text-lg font-bold text-cyan-900 dark:text-cyan-100">{{ r.OI.C ?? '—' }}</div>
+                <div class="text-lg font-bold text-cyan-900 dark:text-cyan-100 leading-tight">{{ r.OI.C ?? '—' }}</div>
               </div>
-              <div class="bg-pink-100 dark:bg-pink-900/30 rounded-lg p-3 text-center">
+              <div class="bg-pink-100 dark:bg-pink-900/30 rounded-lg p-3 text-center min-h-[60px] flex flex-col justify-center">
                 <div class="text-xs font-medium text-pink-700 dark:text-pink-300 mb-1">A</div>
-                <div class="text-lg font-bold text-pink-900 dark:text-pink-100">{{ r.OI.A ?? '—' }}</div>
+                <div class="text-lg font-bold text-pink-900 dark:text-pink-100 leading-tight">{{ r.OI.A ?? '—' }}</div>
               </div>
-              <div class="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 text-center">
+              <div class="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 text-center min-h-[60px] flex flex-col justify-center">
                 <div class="text-xs font-medium text-green-700 dark:text-green-300 mb-1">SE</div>
-                <div class="text-lg font-bold text-green-900 dark:text-green-100">{{ r.se.OI ?? '—' }}</div>
+                <div class="text-lg font-bold text-green-900 dark:text-green-100 leading-tight">{{ r.se.OI ?? '—' }}</div>
               </div>
             </div>
 
@@ -288,10 +288,10 @@
       </div>
 
       <!-- Patient and Equipment Info (ahora abajo, cards más chicas) -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-8 max-w-6xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-8 max-w-6xl mx-auto items-stretch">
         <!-- Paciente Card -->
         <div
-          class="relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0 w-full">
+          class="relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col min-h-[140px] w-full">
           <!-- info icon with tooltip -->
           <div class="absolute top-2 right-2 group">
             <i class="fas fa-info-circle text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200 cursor-help"></i>
@@ -323,7 +323,7 @@
 
         <!-- Equipo Card -->
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0 w-full">
+          class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col min-h-[140px] w-full">
           <h3 class="text-base font-bold text-center text-gray-900 dark:text-white mb-3">Equipo</h3>
           <div class="space-y-1 text-xs flex-1 flex flex-col justify-center">
             @if(r.device) {
@@ -366,7 +366,7 @@
 
         <!-- Mediciones Card -->
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0 w-full">
+          class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col min-h-[140px] w-full">
           <h3 class="text-base font-bold text-center text-gray-900 dark:text-white mb-3">Mediciones</h3>
           <div class="flex-1 flex items-center justify-center">
             <div class="flex flex-col sm:flex-row items-center gap-2">
