@@ -67,13 +67,11 @@
               </div>
             </div>
 
-            <div class="ml-3 flex-shrink-0 pt-4">
+            <div class="ml-3 flex-shrink-0">
               @if(pacienteActual()?.hc === p.hc) {
-              <div class="flex items-center justify-center h-7 w-7 rounded-full bg-green-500 dark:bg-green-600"
+              <div class="flex items-center justify-center h-6 w-6 rounded-full bg-green-500 dark:bg-green-600 shadow-sm border-2 border-green-400 dark:border-green-500"
                 title="Paciente actual">
-                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                </svg>
+                <i class="fas fa-check text-white text-xs"></i>
               </div>
               }
             </div>

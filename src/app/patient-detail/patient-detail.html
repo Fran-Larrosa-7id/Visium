@@ -288,10 +288,10 @@
       </div>
 
       <!-- Patient and Equipment Info (ahora abajo, cards más chicas) -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-8 max-w-6xl mx-auto">
         <!-- Paciente Card -->
         <div
-          class="relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0">
+          class="relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0 w-full">
           <!-- info icon with tooltip -->
           <div class="absolute top-2 right-2 group">
             <i class="fas fa-info-circle text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200 cursor-help"></i>
@@ -323,7 +323,7 @@
 
         <!-- Equipo Card -->
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0">
+          class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0 w-full">
           <h3 class="text-base font-bold text-center text-gray-900 dark:text-white mb-3">Equipo</h3>
           <div class="space-y-1 text-xs flex-1 flex flex-col justify-center">
             @if(r.device) {
@@ -366,7 +366,7 @@
 
         <!-- Mediciones Card -->
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0">
+          class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 p-3 flex flex-col h-full min-h-0 w-full">
           <h3 class="text-base font-bold text-center text-gray-900 dark:text-white mb-3">Mediciones</h3>
           <div class="flex-1 flex items-center justify-center">
             <div class="flex flex-col sm:flex-row items-center gap-2">
