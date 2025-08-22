@@ -42,7 +42,7 @@ export class PatientDetail implements OnInit {
   autoFillPatientData = effect(() => {
     const selectedPatient = this.patient();
     const currentPatient = pacienteActualSignal();
-    
+
     // Prioridad: paciente seleccionado > paciente actual
     const patientToFill = selectedPatient || currentPatient;
     
@@ -52,11 +52,11 @@ export class PatientDetail implements OnInit {
       // Si cambió el paciente seleccionado, actualizar siempre
       const hasPatientChanged = this.lastSelectedPatientHc() !== currentPatientHc;
       
-      if (hasPatientChanged || (!this.name().trim() && !this.hc().trim())) {
+      
         this.name.set(`${patientToFill.apellido}, ${patientToFill.nombre}`);
         this.hc.set(patientToFill.hc);
         this.lastSelectedPatientHc.set(currentPatientHc);
-      }
+      
     }
   });
 
