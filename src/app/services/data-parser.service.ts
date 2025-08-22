@@ -18,68 +18,85 @@ export class DatParserService {
   }
 
   parseDat(content: string): AutoRefraction {
-    const lines = this.cleanLines(content);
-    // Clonamos para ir consumiendo sin perder el tail
-    const q = [...lines];
+    // Dividir en líneas SIN filtrar vacías - mantener posiciones absolutas
+    const allLines = content.split(/\r?\n/).map(l => l.trim());
+    
+    const fecha = allLines[0] && allLines[0].trim() ? allLines[0].trim() : null;
+    const hora = allLines[1] && allLines[1].trim() ? allLines[1].trim() : null;
 
-    const fecha = this.next(q) ?? null;    // ej: 2024_07_04
-    const hora  = this.next(q) ?? null;    // ej: AM 01:32
-
-    // En algunos .dat viene primero PD y luego VD; en otros al revés.
-    // Tomamos los próximos dos números y los asignamos por rango típico.
-    const n1 = this.toNum(q[0]); if (n1 !== null) q.shift();
-    const n2 = this.toNum(q[0]); if (n2 !== null) q.shift();
+    // PD y VD pueden estar ausentes o en diferentes posiciones
     let PD: number | null = null, VD: number | null = null;
-    const pick = (a: number | null, b: number | null) => ({ a, b });
     const pdLikely = (n: number) => n >= 50 && n <= 75;
     const vdLikely = (n: number) => n >= 8 && n <= 18;
 
-    if (n1 !== null && n2 !== null) {
-      if (pdLikely(n1) && vdLikely(n2)) { PD = n1; VD = n2; }
-      else if (vdLikely(n1) && pdLikely(n2)) { VD = n1; PD = n2; }
-      else { // fallback: conservar orden
-        PD = n1; VD = n2;
-      }
-    } else if (n1 !== null) {
-      if (pdLikely(n1)) PD = n1; else if (vdLikely(n1)) VD = n1;
+    // Buscar PD y VD en las líneas 2 y 3, manejando líneas vacías
+    const line2 = allLines[2] && allLines[2].trim() ? this.toNum(allLines[2]) : null;
+    const line3 = allLines[3] && allLines[3].trim() ? this.toNum(allLines[3]) : null;
+
+    // Lógica para asignar PD y VD basado en contenido y rangos típicos
+    if (line2 !== null && line3 !== null) {
+      if (pdLikely(line2) && vdLikely(line3)) { PD = line2; VD = line3; }
+      else if (vdLikely(line2) && pdLikely(line3)) { VD = line2; PD = line3; }
+      else { PD = line2; VD = line3; } // Fallback al orden original
+    } else if (line2 !== null) {
+      if (pdLikely(line2)) PD = line2; 
+      else if (vdLikely(line2)) VD = line2;
+      else PD = line2; // Asumir PD si no está claro
+    } else if (line3 !== null) {
+      if (vdLikely(line3)) VD = line3;
+      else if (pdLikely(line3)) PD = line3;
+      else VD = line3; // Asumir VD si no está claro
     }
 
-    // OD S/C/A/SE
-    const OD_S  = this.next(q) ?? null;
-    const OD_C  = this.next(q) ?? null;
-    const OD_A  = this.next(q) ?? null;
-    const OD_SE = this.next(q) ?? null;
+    // OD S/C/A/SE (líneas 4-7, pueden estar vacías)
+    const OD_S  = allLines[4] && allLines[4].trim() ? allLines[4].trim() : null;
+    const OD_C  = allLines[5] && allLines[5].trim() ? allLines[5].trim() : null;
+    const OD_A  = allLines[6] && allLines[6].trim() ? allLines[6].trim() : null;
+    const OD_SE = allLines[7] && allLines[7].trim() ? allLines[7].trim() : null;
 
-    // OI S/C/A/SE
-    const OI_S  = this.next(q) ?? null;
-    const OI_C  = this.next(q) ?? null;
-    const OI_A  = this.next(q) ?? null;
-    const OI_SE = this.next(q) ?? null;
+    // OI S/C/A/SE (líneas 8-11, pueden estar vacías)
+    const OI_S  = allLines[8] && allLines[8].trim() ? allLines[8].trim() : null;
+    const OI_C  = allLines[9] && allLines[9].trim() ? allLines[9].trim() : null;
+    const OI_A  = allLines[10] && allLines[10].trim() ? allLines[10].trim() : null;
+    const OI_SE = allLines[11] && allLines[11].trim() ? allLines[11].trim() : null;
 
+    // KERATOMETRÍA: usar posiciones fijas absolutas desde línea 12
     // KRT OD (H, V, AVE) D/MM/A
-    const OD_H_D=this.next(q,true), OD_H_MM=this.next(q,true), OD_H_A=this.next(q,true);
-    const OD_V_D=this.next(q,true), OD_V_MM=this.next(q,true), OD_V_A=this.next(q,true);
-    const OD_AV_D=this.next(q,true),OD_AV_MM=this.next(q,true),OD_AV_A=this.next(q,true);
-    const OD_CYL = this.next(q) ?? null;
+    const OD_H_D  = this.toNum(allLines[12]);  // línea 12
+    const OD_H_MM = this.toNum(allLines[13]);  // línea 13  
+    const OD_H_A  = this.toNum(allLines[14]);  // línea 14
+    const OD_V_D  = this.toNum(allLines[15]);  // línea 15
+    const OD_V_MM = this.toNum(allLines[16]);  // línea 16
+    const OD_V_A  = this.toNum(allLines[17]);  // línea 17
+    const OD_AV_D = this.toNum(allLines[18]);  // línea 18
+    const OD_AV_MM= this.toNum(allLines[19]);  // línea 19
+    const OD_AV_A = this.toNum(allLines[20]);  // línea 20
+    const OD_CYL  = allLines[21] && allLines[21].trim() ? allLines[21].trim() : null; // línea 21
 
-    // KRT OI
-    const OI_H_D=this.next(q,true), OI_H_MM=this.next(q,true), OI_H_A=this.next(q,true);
-    const OI_V_D=this.next(q,true), OI_V_MM=this.next(q,true), OI_V_A=this.next(q,true);
-    const OI_AV_D=this.next(q,true),OI_AV_MM=this.next(q,true),OI_AV_A=this.next(q,true);
-    const OI_CYL = this.next(q) ?? null;
+    // KRT OI 
+    const OI_H_D  = this.toNum(allLines[22]);  // línea 22
+    const OI_H_MM = this.toNum(allLines[23]);  // línea 23
+    const OI_H_A  = this.toNum(allLines[24]);  // línea 24
+    const OI_V_D  = this.toNum(allLines[25]);  // línea 25
+    const OI_V_MM = this.toNum(allLines[26]);  // línea 26
+    const OI_V_A  = this.toNum(allLines[27]);  // línea 27
+    const OI_AV_D = this.toNum(allLines[28]);  // línea 28
+    const OI_AV_MM= this.toNum(allLines[29]);  // línea 29
+    const OI_AV_A = this.toNum(allLines[30]);  // línea 30
+    const OI_CYL  = allLines[31] && allLines[31].trim() ? allLines[31].trim() : null; // línea 31
 
-    // Tail: normalmente penúltima línea => "KR-8900   021.12"
-    //       última línea => WorkId (p.ej. "0895")
+    // Tail: device info y workId al final
     let host: string | null = null;
     let fw: string | undefined;
     let workId: string | null = null;
-    if (lines.length >= 2) {
-      const tail1 = lines[lines.length - 2]; // modelo + fw
-      const tail2 = lines[lines.length - 1]; // workId (o algo)
+    
+    const nonEmptyLines = allLines.filter(l => l && l.trim());
+    if (nonEmptyLines.length >= 2) {
+      const tail1 = nonEmptyLines[nonEmptyLines.length - 2]; // modelo + fw
+      const tail2 = nonEmptyLines[nonEmptyLines.length - 1]; // workId
       const parts = tail1.split(/\s+/).filter(Boolean);
-      if (parts.length >= 1) host = parts[0] ?? null;       // KR-8900
-      if (parts.length >= 2) fw   = parts[1];               // 021.12
-      // workId: numérico o alfanumérico
+      if (parts.length >= 1) host = parts[0] ?? null;
+      if (parts.length >= 2) fw = parts[1];
       workId = tail2 || null;
     }
 
