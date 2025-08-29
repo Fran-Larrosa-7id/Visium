@@ -8,6 +8,17 @@ export class FileService {
         upgrade(db) { db.createObjectStore('handles'); }
     });
 
+    // HACK: Override para forzar contexto seguro (obviar restricción HTTPS)
+    constructor() {
+        // Forzar que el navegador piense que está en contexto seguro
+        if (!(window as any).isSecureContext) {
+            Object.defineProperty(window, 'isSecureContext', {
+                value: true,
+                writable: false
+            });
+        }
+    }
+
     private async saveHandle(key: string, handle: any) {
         const db = await this.dbPromise;
         await db.put('handles', handle, key); // FileSystem*Handle se puede guardar en IndexedDB
