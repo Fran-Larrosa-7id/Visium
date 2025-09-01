@@ -8,15 +8,86 @@ export class FileService {
         upgrade(db) { db.createObjectStore('handles'); }
     });
 
-    // HACK: Override para forzar contexto seguro (obviar restricción HTTPS)
+    // POLYFILL: Simular FileSystem API sin HTTPS
     constructor() {
-        // Forzar que el navegador piense que está en contexto seguro
-        if (!(window as any).isSecureContext) {
-            Object.defineProperty(window, 'isSecureContext', {
-                value: true,
-                writable: false
-            });
+        this.initFileSystemPolyfill();
+    }
+
+    private initFileSystemPolyfill() {
+        // Solo crear polyfill si no existe la API nativa
+        if (!(window as any).showDirectoryPicker) {
+            console.log('🔧 Iniciando polyfill FileSystem API para HTTP...');
+            
+            (window as any).showDirectoryPicker = this.createDirectoryPicker.bind(this);
         }
+    }
+
+    private createDirectoryPicker() {
+        return new Promise((resolve) => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.webkitdirectory = true;
+            input.multiple = true;
+            input.style.display = 'none';
+            
+            const handleSelection = () => {
+                if (input.files && input.files.length > 0) {
+                    const mockHandle = this.createMockDirectoryHandle(input.files);
+                    resolve(mockHandle);
+                } else {
+                    resolve(null);
+                }
+                document.body.removeChild(input);
+            };
+            
+            input.addEventListener('change', handleSelection);
+            input.addEventListener('cancel', () => {
+                resolve(null);
+                document.body.removeChild(input);
+            });
+            
+            document.body.appendChild(input);
+            input.click();
+        });
+    }
+
+    private createMockDirectoryHandle(files: FileList) {
+        const fileArray = Array.from(files);
+        
+        return {
+            kind: 'directory',
+            name: 'selected-folder',
+            
+            // Simular entries() iterator
+            entries: async function* () {
+                for (const file of fileArray) {
+                    yield [file.name, {
+                        kind: 'file',
+                        name: file.name,
+                        getFile: () => Promise.resolve(file),
+                        queryPermission: () => Promise.resolve('granted'),
+                        requestPermission: () => Promise.resolve('granted')
+                    }];
+                }
+            },
+            
+            // Simular getFileHandle()
+            getFileHandle: (name: string) => {
+                const file = fileArray.find(f => f.name === name);
+                if (!file) throw new Error(`File "${name}" not found`);
+                return Promise.resolve({
+                    kind: 'file',
+                    name: file.name,
+                    getFile: () => Promise.resolve(file),
+                    queryPermission: () => Promise.resolve('granted'),
+                    requestPermission: () => Promise.resolve('granted')
+                });
+            },
+            
+            // Simular métodos de permisos
+            queryPermission: () => Promise.resolve('granted'),
+            requestPermission: () => Promise.resolve('granted')
+        };
     }
 
     private async saveHandle(key: string, handle: any) {
