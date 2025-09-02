@@ -16,13 +16,17 @@ export class FileService {
     private initFileSystemPolyfill() {
         // Solo crear polyfill si no existe la API nativa
         if (!(window as any).showDirectoryPicker) {
-            console.log('🔧 Iniciando polyfill FileSystem API para HTTP...');
+            console.log('🔧 POLYFILL ACTIVO: FileSystem API para HTTP iniciado correctamente');
+            console.log('✅ La aplicación funcionará sin HTTPS en http://181.29.107.180:5103/treelan/Visium/');
             
             (window as any).showDirectoryPicker = this.createDirectoryPicker.bind(this);
+        } else {
+            console.log('🌐 API FileSystem nativa disponible (HTTPS)');
         }
     }
 
     private createDirectoryPicker() {
+        console.log('📁 Polyfill: Abriendo selector de carpeta...');
         return new Promise((resolve) => {
             const input = document.createElement('input');
             input.type = 'file';
@@ -32,9 +36,11 @@ export class FileService {
             
             const handleSelection = () => {
                 if (input.files && input.files.length > 0) {
+                    console.log(`✅ Polyfill: ${input.files.length} archivos seleccionados`);
                     const mockHandle = this.createMockDirectoryHandle(input.files);
                     resolve(mockHandle);
                 } else {
+                    console.log('❌ Polyfill: No se seleccionaron archivos');
                     resolve(null);
                 }
                 document.body.removeChild(input);
@@ -42,6 +48,7 @@ export class FileService {
             
             input.addEventListener('change', handleSelection);
             input.addEventListener('cancel', () => {
+                console.log('🚫 Polyfill: Selección cancelada');
                 resolve(null);
                 document.body.removeChild(input);
             });
@@ -53,10 +60,15 @@ export class FileService {
 
     private createMockDirectoryHandle(files: FileList) {
         const fileArray = Array.from(files);
+        const datFiles = fileArray.filter(f => f.name.toLowerCase().endsWith('.dat'));
+        
+        console.log(`🗂️ Polyfill: Creando handle para ${fileArray.length} archivos (${datFiles.length} archivos .dat)`);
         
         return {
             kind: 'directory',
             name: 'selected-folder',
+            _isPolyfill: true, // Marcar como polyfill
+            _files: fileArray, // Guardar referencia a archivos
             
             // Simular entries() iterator
             entries: async function* () {
@@ -64,9 +76,10 @@ export class FileService {
                     yield [file.name, {
                         kind: 'file',
                         name: file.name,
+                        _isPolyfill: true,
                         getFile: () => Promise.resolve(file),
-                        queryPermission: () => Promise.resolve('granted'),
-                        requestPermission: () => Promise.resolve('granted')
+                        queryPermission: () => Promise.resolve('granted' as PermissionState),
+                        requestPermission: () => Promise.resolve('granted' as PermissionState)
                     }];
                 }
             },
@@ -78,21 +91,32 @@ export class FileService {
                 return Promise.resolve({
                     kind: 'file',
                     name: file.name,
+                    _isPolyfill: true,
                     getFile: () => Promise.resolve(file),
-                    queryPermission: () => Promise.resolve('granted'),
-                    requestPermission: () => Promise.resolve('granted')
+                    queryPermission: () => Promise.resolve('granted' as PermissionState),
+                    requestPermission: () => Promise.resolve('granted' as PermissionState)
                 });
             },
             
             // Simular métodos de permisos
-            queryPermission: () => Promise.resolve('granted'),
-            requestPermission: () => Promise.resolve('granted')
+            queryPermission: () => Promise.resolve('granted' as PermissionState),
+            requestPermission: () => Promise.resolve('granted' as PermissionState)
         };
     }
 
     private async saveHandle(key: string, handle: any) {
-        const db = await this.dbPromise;
-        await db.put('handles', handle, key); // FileSystem*Handle se puede guardar en IndexedDB
+        // No guardar handles del polyfill en IndexedDB (no son serializables)
+        if (handle && handle._isPolyfill) {
+            console.log('🔧 Polyfill handle - no guardando en IndexedDB');
+            return;
+        }
+        
+        try {
+            const db = await this.dbPromise;
+            await db.put('handles', handle, key); // FileSystem*Handle se puede guardar en IndexedDB
+        } catch (error) {
+            console.warn('No se pudo guardar handle:', error);
+        }
     }
 
     // Método público para guardar carpeta de guardado
