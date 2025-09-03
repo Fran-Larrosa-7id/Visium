@@ -187,6 +187,7 @@ export class FileService {
     }
 
     // 8) Detectar si NO estamos en contexto seguro (mejorado)
+    // 8) Detectar si NO estamos en contexto seguro (mejorado)
     isInsecureContext(): boolean {
         // Si tenemos File System Access API disponible, entonces estamos en contexto seguro
         if ('showDirectoryPicker' in window) {
@@ -206,93 +207,35 @@ export class FileService {
         return false;
     }
 
-    // 9) Generar y descargar archivo .bat para configurar política de registro
-    downloadSecurityPolicyBat(): void {
+    // 9) Abrir Chrome flags y copiar origin al portapapeles
+    async openChromeFlags(): Promise<void> {
         const origin = window.location.origin;
-        const protocol = window.location.protocol;
-        const hostname = window.location.hostname;
-        const port = window.location.port;
         
-        const batContent = `@echo off
-REM Configurar Chrome/Edge para tratar ${origin} como origen seguro
-REM Esto habilita File System Access API en el origen especificado
-
-echo ========================================
-echo CONFIGURANDO ORIGEN SEGURO
-echo ========================================
-echo Origin: ${origin}
-echo Protocol: ${protocol}
-echo Hostname: ${hostname}
-echo Port: ${port}
-echo ========================================
-
-REM Matar todos los procesos de navegadores
-echo Cerrando navegadores...
-taskkill /f /im chrome.exe >nul 2>&1
-taskkill /f /im msedge.exe >nul 2>&1
-timeout /t 2 >nul
-
-echo Configurando politica de seguridad...
-
-REM Crear claves de registro para Chrome (Sistema)
-reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome" /f >nul 2>&1
-reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
-echo Chrome (Sistema): OK
-
-REM Crear claves de registro para Edge (Sistema)  
-reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Edge" /f >nul 2>&1
-reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Edge" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
-echo Edge (Sistema): OK
-
-REM Crear claves de registro para Chrome (Usuario)
-reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome" /f >nul 2>&1
-reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
-echo Chrome (Usuario): OK
-
-REM Crear claves de registro para Edge (Usuario)
-reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Microsoft\\Edge" /f >nul 2>&1
-reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Microsoft\\Edge" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
-echo Edge (Usuario): OK
-
-REM Tambien agregar variantes con y sin puerto por si acaso
-REM Solo el hostname con puerto
-set HOST_WITH_PORT=${hostname}:${port}
-reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${protocol}//%HOST_WITH_PORT%" /f >nul 2>&1
-reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Edge" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${protocol}//%HOST_WITH_PORT%" /f >nul 2>&1
-reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${protocol}//%HOST_WITH_PORT%" /f >nul 2>&1
-reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Microsoft\\Edge" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${protocol}//%HOST_WITH_PORT%" /f >nul 2>&1
-
-echo.
-echo ============================================
-echo CONFIGURACION COMPLETADA
-echo ============================================
-echo.
-echo El origen ${origin} ha sido configurado como seguro.
-echo.
-echo PASOS IMPORTANTES:
-echo 1. ✓ Navegadores cerrados automaticamente
-echo 2. ✓ Politicas de registro aplicadas
-echo 3. → ABRE EL NAVEGADOR NUEVAMENTE
-echo 4. → Ve a: ${origin}
-echo 5. → Presiona F12 y en consola escribe: isSecureContext
-echo 6. → Deberia devolver: true
-echo.
-echo Si sigue devolviendo false, REINICIA EL SISTEMA
-echo.
-pause`;
-
-        // Crear blob y descargar
-        const blob = new Blob([batContent], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `configurar-origen-seguro-${window.location.hostname}-${window.location.port || '80'}.bat`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        URL.revokeObjectURL(url);
+        try {
+            // Copiar el origin al portapapeles
+            await navigator.clipboard.writeText(origin);
+            
+            // Abrir nueva pestaña con chrome://flags
+            const flagsUrl = 'chrome://flags/#unsafely-treat-insecure-origin-as-secure';
+            window.open(flagsUrl, '_blank');
+            
+            return Promise.resolve();
+        } catch (error) {
+            console.error('Error copying to clipboard:', error);
+            // Fallback: crear un elemento temporal para copiar
+            const textArea = document.createElement('textarea');
+            textArea.value = origin;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            // Abrir nueva pestaña con chrome://flags
+            const flagsUrl = 'chrome://flags/#unsafely-treat-insecure-origin-as-secure';
+            window.open(flagsUrl, '_blank');
+            
+            return Promise.resolve();
+        }
     }
 
     // 10) Verificar si File System Access API está disponible
@@ -314,6 +257,5 @@ pause`;
                       navigator.userAgent.includes('Edge') ? 'Edge' : 'Other'
         };
     }
-
 
 }

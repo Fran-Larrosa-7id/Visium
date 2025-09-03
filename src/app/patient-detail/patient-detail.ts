@@ -125,15 +125,15 @@ export class PatientDetail implements OnInit {
     this.showSecurityModal.set(true);
   }
 
-  // Descargar archivo .bat para configurar origen como seguro
-  downloadSecurityConfig(): void {
-    this._fileSvc.downloadSecurityPolicyBat();
+  // Abrir Chrome flags con origin copiado
+  async openChromeFlags(): Promise<void> {
+    await this._fileSvc.openChromeFlags();
     this.showSecurityModal.set(false);
     
     // Mostrar mensaje de éxito temporal
     this.showModal.set({
-      title: "Archivo descargado",
-      content: "El archivo de configuración se ha descargado. Ejecútalo como administrador, cierra todos los navegadores y vuelve a abrir la aplicación."
+      title: "Configuración de Chrome abierta",
+      content: `Se abrió chrome://flags y se copió "${this.currentOrigin}" al portapapeles. Pega el origin, habilita la opción y reinicia Chrome.`
     });
   }
 
