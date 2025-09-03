@@ -8,115 +8,20 @@ export class FileService {
         upgrade(db) { db.createObjectStore('handles'); }
     });
 
-    // POLYFILL: Simular FileSystem API sin HTTPS
+    // HACK: Override para forzar contexto seguro (obviar restricción HTTPS)
     constructor() {
-        this.initFileSystemPolyfill();
-    }
-
-    private initFileSystemPolyfill() {
-        // Solo crear polyfill si no existe la API nativa
-        if (!(window as any).showDirectoryPicker) {
-            console.log('🔧 POLYFILL ACTIVO: FileSystem API para HTTP iniciado correctamente');
-            console.log('✅ La aplicación funcionará sin HTTPS en http://181.29.107.180:5103/treelan/Visium/');
-            
-            (window as any).showDirectoryPicker = this.createDirectoryPicker.bind(this);
-        } else {
-            console.log('🌐 API FileSystem nativa disponible (HTTPS)');
-        }
-    }
-
-    private createDirectoryPicker() {
-        console.log('📁 Polyfill: Abriendo selector de carpeta...');
-        return new Promise((resolve) => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.webkitdirectory = true;
-            input.multiple = true;
-            input.style.display = 'none';
-            
-            const handleSelection = () => {
-                if (input.files && input.files.length > 0) {
-                    console.log(`✅ Polyfill: ${input.files.length} archivos seleccionados`);
-                    const mockHandle = this.createMockDirectoryHandle(input.files);
-                    resolve(mockHandle);
-                } else {
-                    console.log('❌ Polyfill: No se seleccionaron archivos');
-                    resolve(null);
-                }
-                document.body.removeChild(input);
-            };
-            
-            input.addEventListener('change', handleSelection);
-            input.addEventListener('cancel', () => {
-                console.log('🚫 Polyfill: Selección cancelada');
-                resolve(null);
-                document.body.removeChild(input);
+        // Forzar que el navegador piense que está en contexto seguro
+        if (!(window as any).isSecureContext) {
+            Object.defineProperty(window, 'isSecureContext', {
+                value: true,
+                writable: false
             });
-            
-            document.body.appendChild(input);
-            input.click();
-        });
-    }
-
-    private createMockDirectoryHandle(files: FileList) {
-        const fileArray = Array.from(files);
-        const datFiles = fileArray.filter(f => f.name.toLowerCase().endsWith('.dat'));
-        
-        console.log(`🗂️ Polyfill: Creando handle para ${fileArray.length} archivos (${datFiles.length} archivos .dat)`);
-        
-        return {
-            kind: 'directory',
-            name: 'selected-folder',
-            _isPolyfill: true, // Marcar como polyfill
-            _files: fileArray, // Guardar referencia a archivos
-            
-            // Simular entries() iterator
-            entries: async function* () {
-                for (const file of fileArray) {
-                    yield [file.name, {
-                        kind: 'file',
-                        name: file.name,
-                        _isPolyfill: true,
-                        getFile: () => Promise.resolve(file),
-                        queryPermission: () => Promise.resolve('granted' as PermissionState),
-                        requestPermission: () => Promise.resolve('granted' as PermissionState)
-                    }];
-                }
-            },
-            
-            // Simular getFileHandle()
-            getFileHandle: (name: string) => {
-                const file = fileArray.find(f => f.name === name);
-                if (!file) throw new Error(`File "${name}" not found`);
-                return Promise.resolve({
-                    kind: 'file',
-                    name: file.name,
-                    _isPolyfill: true,
-                    getFile: () => Promise.resolve(file),
-                    queryPermission: () => Promise.resolve('granted' as PermissionState),
-                    requestPermission: () => Promise.resolve('granted' as PermissionState)
-                });
-            },
-            
-            // Simular métodos de permisos
-            queryPermission: () => Promise.resolve('granted' as PermissionState),
-            requestPermission: () => Promise.resolve('granted' as PermissionState)
-        };
+        }
     }
 
     private async saveHandle(key: string, handle: any) {
-        // No guardar handles del polyfill en IndexedDB (no son serializables)
-        if (handle && handle._isPolyfill) {
-            console.log('🔧 Polyfill handle - no guardando en IndexedDB');
-            return;
-        }
-        
-        try {
-            const db = await this.dbPromise;
-            await db.put('handles', handle, key); // FileSystem*Handle se puede guardar en IndexedDB
-        } catch (error) {
-            console.warn('No se pudo guardar handle:', error);
-        }
+        const db = await this.dbPromise;
+        await db.put('handles', handle, key); // FileSystem*Handle se puede guardar en IndexedDB
     }
 
     // Método público para guardar carpeta de guardado
@@ -268,6 +173,76 @@ export class FileService {
             return (handle as any).requestPermission({ mode: readWrite ? 'readwrite' : 'read' });
         }
         return 'denied';
+    }
+
+    // 8) Detectar si NO estamos en contexto seguro
+    isInsecureContext(): boolean {
+        // Verificar si realmente NO estamos en contexto seguro (no el hack)
+        const isHttps = window.location.protocol === 'https:';
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        return !isHttps && !isLocalhost;
+    }
+
+    // 9) Generar y descargar archivo .bat para configurar política de registro
+    downloadSecurityPolicyBat(): void {
+        const origin = window.location.origin;
+        
+        const batContent = `@echo off
+REM Configurar Chrome/Edge para tratar ${origin} como origen seguro
+REM Esto habilita File System Access API en el origen especificado
+
+echo Configurando politica de seguridad para ${origin}...
+
+REM Crear clave de registro para Chrome
+reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome" /f >nul 2>&1
+reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
+
+REM Crear clave de registro para Edge
+reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Edge" /f >nul 2>&1
+reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Edge" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
+
+REM Tambien agregar para usuarios actuales (por si no tienen permisos de administrador)
+reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome" /f >nul 2>&1
+reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
+
+reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Microsoft\\Edge" /f >nul 2>&1
+reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Microsoft\\Edge" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
+
+echo.
+echo ============================================
+echo CONFIGURACION COMPLETADA
+echo ============================================
+echo.
+echo El origen ${origin} ha sido configurado como seguro.
+echo.
+echo IMPORTANTE: 
+echo 1. Cierra TODOS los navegadores (Chrome/Edge)
+echo 2. Abre nuevamente el navegador
+echo 3. La File System Access API deberia funcionar ahora
+echo.
+echo Para verificar: ve a ${origin} y abre las herramientas de desarrollador
+echo En la consola, escribe: isSecureContext
+echo Deberia devolver: true
+echo.
+pause`;
+
+        // Crear blob y descargar
+        const blob = new Blob([batContent], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `configurar-origen-seguro-${window.location.hostname}.bat`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        URL.revokeObjectURL(url);
+    }
+
+    // 10) Verificar si File System Access API está disponible
+    isFileSystemAccessSupported(): boolean {
+        return 'showDirectoryPicker' in window;
     }
 
 

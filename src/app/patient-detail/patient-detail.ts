@@ -30,9 +30,15 @@ export class PatientDetail implements OnInit {
   showMessage = signal<boolean>(false);
   showMessageSave = signal<boolean>(false);
   showModal = signal<{ title: string; content: string } | null>(null);
+  showSecurityModal = signal<boolean>(false);
   name = signal<string>('');
   hc = signal<string>('');
   lastSelectedPatientHc = signal<string | null>(null); // Para trackear cambios
+  
+  // Para acceder al origin desde el template
+  get currentOrigin(): string {
+    return window.location.origin;
+  }
   
   loadPatient = effect(() => {
     this.patientSignal.set(this.patient());
@@ -97,6 +103,33 @@ export class PatientDetail implements OnInit {
     if (dir) await this.loadLatestFrom(dir);
     this.linked.set(dir);
     this.isDirectory.set(!!dir);
+  }
+
+  // Verificar si estamos en contexto inseguro
+  isInsecureContext(): boolean {
+    return this._fileSvc.isInsecureContext();
+  }
+
+  // Verificar si File System Access API está soportada
+  isFileSystemAccessSupported(): boolean {
+    return this._fileSvc.isFileSystemAccessSupported();
+  }
+
+  // Mostrar modal de configuración de seguridad
+  showSecurityConfigModal(): void {
+    this.showSecurityModal.set(true);
+  }
+
+  // Descargar archivo .bat para configurar origen como seguro
+  downloadSecurityConfig(): void {
+    this._fileSvc.downloadSecurityPolicyBat();
+    this.showSecurityModal.set(false);
+    
+    // Mostrar mensaje de éxito temporal
+    this.showModal.set({
+      title: "Archivo descargado",
+      content: "El archivo de configuración se ha descargado. Ejecútalo como administrador, cierra todos los navegadores y vuelve a abrir la aplicación."
+    });
   }
 
 
