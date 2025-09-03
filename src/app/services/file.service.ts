@@ -211,31 +211,67 @@ export class FileService {
     async openChromeFlags(): Promise<void> {
         const origin = window.location.origin;
         
+        // Primero intentar abrir la pestaña
+        const flagsUrl = 'chrome://flags/#unsafely-treat-insecure-origin-as-secure';
+        
         try {
-            // Copiar el origin al portapapeles
-            await navigator.clipboard.writeText(origin);
+            // Intentar abrir nueva pestaña
+            const newTab = window.open(flagsUrl, '_blank');
             
-            // Abrir nueva pestaña con chrome://flags
-            const flagsUrl = 'chrome://flags/#unsafely-treat-insecure-origin-as-secure';
-            window.open(flagsUrl, '_blank');
-            
-            return Promise.resolve();
+            // Si no se pudo abrir (bloqueado por popup), mostrar instrucciones
+            if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
+                console.warn('Popup bloqueado, usando fallback');
+                // Crear un enlace temporal y hacer click
+                const link = document.createElement('a');
+                link.href = flagsUrl;
+                link.target = '_blank';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
         } catch (error) {
-            console.error('Error copying to clipboard:', error);
-            // Fallback: crear un elemento temporal para copiar
-            const textArea = document.createElement('textarea');
-            textArea.value = origin;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            
-            // Abrir nueva pestaña con chrome://flags
-            const flagsUrl = 'chrome://flags/#unsafely-treat-insecure-origin-as-secure';
-            window.open(flagsUrl, '_blank');
-            
-            return Promise.resolve();
+            console.error('Error opening tab:', error);
+            // Fallback: mostrar instrucciones para abrir manualmente
+            alert(`No se pudo abrir automáticamente. Ve manualmente a: ${flagsUrl}`);
         }
+        
+        // Intentar copiar al portapapeles
+        try {
+            // Verificar si la API de clipboard está disponible
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(origin);
+                console.log('Origin copiado al portapapeles via Clipboard API');
+            } else {
+                throw new Error('Clipboard API no disponible');
+            }
+        } catch (error) {
+            console.warn('Clipboard API falló, usando método alternativo:', error);
+            // Fallback: crear un elemento temporal para copiar
+            try {
+                const textArea = document.createElement('textarea');
+                textArea.value = origin;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                if (successful) {
+                    console.log('Origin copiado al portapapeles via execCommand');
+                } else {
+                    console.warn('No se pudo copiar automáticamente');
+                }
+            } catch (fallbackError) {
+                console.error('Error en fallback de clipboard:', fallbackError);
+            }
+        }
+        
+        return Promise.resolve();
     }
 
     // 10) Verificar si File System Access API está disponible

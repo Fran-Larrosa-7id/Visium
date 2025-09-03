@@ -132,8 +132,8 @@ export class PatientDetail implements OnInit {
     
     // Mostrar mensaje de éxito temporal
     this.showModal.set({
-      title: "Configuración de Chrome abierta",
-      content: `Se abrió chrome://flags y se copió "${this.currentOrigin}" al portapapeles. Pega el origin, habilita la opción y reinicia Chrome.`
+      title: "Proceso iniciado",
+      content: `Se intentó abrir chrome://flags y copiar "${this.currentOrigin}" al portapapeles. Si no se abrió automáticamente, ve manualmente a chrome://flags y busca "Insecure origins treated as secure".`
     });
   }
 
