@@ -120,21 +120,9 @@ export class PatientDetail implements OnInit {
     return this._fileSvc.isFileSystemAccessSupported();
   }
 
-  // Mostrar modal de configuración de seguridad
+  // Mostrar modal simplificado
   showSecurityConfigModal(): void {
     this.showSecurityModal.set(true);
-  }
-
-  // Abrir Chrome flags con origin copiado
-  async openChromeFlags(): Promise<void> {
-    await this._fileSvc.openChromeFlags();
-    this.showSecurityModal.set(false);
-    
-    // Mostrar mensaje de éxito temporal
-    this.showModal.set({
-      title: "Proceso iniciado",
-      content: `Se intentó abrir chrome://flags y copiar "${this.currentOrigin}" al portapapeles. Si no se abrió automáticamente, ve manualmente a chrome://flags y busca "Insecure origins treated as secure".`
-    });
   }
 
 

@@ -207,71 +207,82 @@ export class FileService {
         return false;
     }
 
-    // 9) Abrir Chrome flags y copiar origin al portapapeles
-    async openChromeFlags(): Promise<void> {
+    // 9) Copiar origin al portapapeles (método mejorado)
+    async copyOriginToClipboard(): Promise<boolean> {
         const origin = window.location.origin;
         
-        // Primero intentar abrir la pestaña
-        const flagsUrl = 'chrome://flags/#unsafely-treat-insecure-origin-as-secure';
-        
+        // Método 1: Clipboard API moderna (solo funciona en contexto seguro)
         try {
-            // Intentar abrir nueva pestaña
-            const newTab = window.open(flagsUrl, '_blank');
-            
-            // Si no se pudo abrir (bloqueado por popup), mostrar instrucciones
-            if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
-                console.warn('Popup bloqueado, usando fallback');
-                // Crear un enlace temporal y hacer click
-                const link = document.createElement('a');
-                link.href = flagsUrl;
-                link.target = '_blank';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        } catch (error) {
-            console.error('Error opening tab:', error);
-            // Fallback: mostrar instrucciones para abrir manualmente
-            alert(`No se pudo abrir automáticamente. Ve manualmente a: ${flagsUrl}`);
-        }
-        
-        // Intentar copiar al portapapeles
-        try {
-            // Verificar si la API de clipboard está disponible
-            if (navigator.clipboard && window.isSecureContext) {
+            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
                 await navigator.clipboard.writeText(origin);
-                console.log('Origin copiado al portapapeles via Clipboard API');
-            } else {
-                throw new Error('Clipboard API no disponible');
+                console.log('✅ Origin copiado via Clipboard API');
+                return true;
             }
         } catch (error) {
-            console.warn('Clipboard API falló, usando método alternativo:', error);
-            // Fallback: crear un elemento temporal para copiar
-            try {
-                const textArea = document.createElement('textarea');
-                textArea.value = origin;
-                textArea.style.position = 'fixed';
-                textArea.style.left = '-999999px';
-                textArea.style.top = '-999999px';
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                
-                const successful = document.execCommand('copy');
-                document.body.removeChild(textArea);
-                
-                if (successful) {
-                    console.log('Origin copiado al portapapeles via execCommand');
-                } else {
-                    console.warn('No se pudo copiar automáticamente');
-                }
-            } catch (fallbackError) {
-                console.error('Error en fallback de clipboard:', fallbackError);
-            }
+            console.warn('❌ Clipboard API falló:', error);
         }
         
-        return Promise.resolve();
+        // Método 2: document.execCommand (funciona en más contextos)
+        try {
+            const textArea = document.createElement('textarea');
+            textArea.value = origin;
+            
+            // Hacer el textarea invisible pero accessible
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            textArea.style.top = '-9999px';
+            textArea.style.opacity = '0';
+            textArea.style.pointerEvents = 'none';
+            textArea.style.zIndex = '-1';
+            
+            document.body.appendChild(textArea);
+            
+            // Seleccionar y copiar
+            textArea.focus();
+            textArea.select();
+            textArea.setSelectionRange(0, textArea.value.length);
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            if (successful) {
+                console.log('✅ Origin copiado via execCommand');
+                return true;
+            } else {
+                console.warn('❌ execCommand falló');
+            }
+        } catch (error) {
+            console.error('❌ Error en execCommand:', error);
+        }
+        
+        // Método 3: Selección manual como último recurso
+        try {
+            const textArea = document.createElement('textarea');
+            textArea.value = origin;
+            textArea.style.width = '300px';
+            textArea.style.height = '50px';
+            textArea.style.position = 'fixed';
+            textArea.style.top = '50%';
+            textArea.style.left = '50%';
+            textArea.style.transform = 'translate(-50%, -50%)';
+            textArea.style.zIndex = '9999';
+            textArea.style.background = 'white';
+            textArea.style.border = '2px solid blue';
+            textArea.style.padding = '10px';
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            // Mostrar instrucciones
+            alert('No se pudo copiar automáticamente. El texto está seleccionado. Presiona Ctrl+C para copiarlo.');
+            
+            document.body.removeChild(textArea);
+            return false;
+        } catch (error) {
+            console.error('❌ Todos los métodos fallaron:', error);
+            return false;
+        }
     }
 
     // 10) Verificar si File System Access API está disponible
