@@ -32,6 +32,12 @@ export class PatientDetail implements OnInit {
   showModal = signal<{ title: string; content: string } | null>(null);
   showSecurityModal = signal<boolean>(false);
   showCopyMessage = signal<string | null>(null); // Para mostrar feedback de copiado
+  
+  // Para la secuencia guiada
+  currentStep = signal<number>(1); // Paso actual en la secuencia
+  step1Complete = signal<boolean>(false); // URL copiada
+  step4Complete = signal<boolean>(false); // Origin copiado
+  
   name = signal<string>('');
   hc = signal<string>('');
   lastSelectedPatientHc = signal<string | null>(null); // Para trackear cambios
@@ -124,8 +130,34 @@ export class PatientDetail implements OnInit {
   // Mostrar modal simplificado
   showSecurityConfigModal(): void {
     this.showSecurityModal.set(true);
-    // Copiar automáticamente el origin al abrir el modal
-    this.copyToClipboard(this.currentOrigin);
+    // Resetear pasos de la secuencia guiada
+    this.currentStep.set(1);
+    this.step1Complete.set(false);
+    this.step4Complete.set(false);
+    // Ya no copiamos automáticamente aquí, será parte del paso 1
+  }
+
+  // Funciones para la secuencia guiada
+  async step1CopyUrl(): Promise<void> {
+    await this.copyToClipboard('chrome://flags/#unsafely-treat-insecure-origin-as-secure');
+    this.step1Complete.set(true);
+    this.currentStep.set(2);
+  }
+
+  step2NewTab(): void {
+    // Solo avanza al siguiente paso, el usuario debe hacer Ctrl+T manualmente
+    this.currentStep.set(3);
+  }
+
+  step3PasteUrl(): void {
+    // Solo avanza al siguiente paso, el usuario debe pegar manualmente
+    this.currentStep.set(4);
+  }
+
+  async step4CopyOrigin(): Promise<void> {
+    await this.copyToClipboard(this.currentOrigin);
+    this.step4Complete.set(true);
+    // Mantener en paso 4 para que vea las instrucciones finales
   }
 
   // Función para copiar texto al portapapeles

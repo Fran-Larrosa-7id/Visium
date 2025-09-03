@@ -486,45 +486,166 @@
       </button>
     </div>
 
-    <!-- Contenido explicativo -->
+    <!-- Contenido de secuencia guiada -->
     <div class="space-y-4 mb-6">
       
-      <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
-        <h4 class="font-semibold text-green-900 dark:text-green-100 mb-3">🔗 Enlaces directos:</h4>
-        
-        <div class="space-y-3">
-          <div>
-            <p class="text-green-800 dark:text-green-200 text-sm mb-2">1. Copia esta URL y pégala en una nueva pestaña:</p>
-            <div class="relative bg-green-100 dark:bg-green-800 text-green-900 dark:text-green-100 px-3 py-2 rounded text-sm font-mono break-all border border-green-300 dark:border-green-600 cursor-pointer select-all hover:bg-green-200 dark:hover:bg-green-700 transition-all duration-200 hover:scale-[1.02] hover:shadow-md group"
-                 (click)="copyToClipboard('chrome://flags/#unsafely-treat-insecure-origin-as-secure')"
-                 title="Haz clic para copiar">
-              chrome://flags/#unsafely-treat-insecure-origin-as-secure
-              <i class="fas fa-copy absolute top-2 right-2 text-green-600 dark:text-green-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></i>
-            </div>
-          </div>
-          
-          <div>
-            <p class="text-green-800 dark:text-green-200 text-sm mb-2">2. Pega este origin en el campo de texto:</p>
-            <div class="relative bg-green-100 dark:bg-green-800 text-green-900 dark:text-green-100 px-3 py-2 rounded text-sm font-mono break-all border border-green-300 dark:border-green-600 cursor-pointer select-all hover:bg-green-200 dark:hover:bg-green-700 transition-all duration-200 hover:scale-[1.02] hover:shadow-md group"
-                 (click)="copyToClipboard(currentOrigin)"
-                 title="Haz clic para copiar">
-              {{ currentOrigin }}
-              <i class="fas fa-copy absolute top-2 right-2 text-green-600 dark:text-green-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></i>
-            </div>
-          </div>
-          
-          <div>
-            <p class="text-green-800 dark:text-green-200 text-sm">3. Cambia a <strong>"Enabled"</strong> y haz clic en <strong>"Relaunch"</strong></p>
-          </div>
+      <!-- PASO 1: Copiar URL -->
+      <div class="border-2 rounded-lg p-4 transition-all duration-300"
+           [class]="currentStep() >= 1 ? (step1Complete() ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20') : 'border-gray-300 bg-gray-50 dark:bg-gray-700'">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="font-bold text-lg flex items-center gap-2">
+            @if(step1Complete()) {
+              <i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>
+            } @else if(currentStep() === 1) {
+              <i class="fas fa-circle text-blue-600 dark:text-blue-400 animate-pulse"></i>
+            } @else {
+              <i class="fas fa-circle text-gray-400"></i>
+            }
+            <span [class]="currentStep() >= 1 ? 'text-gray-900 dark:text-white' : 'text-gray-400'">
+              Paso 1: Copiar URL de Chrome
+            </span>
+          </h4>
         </div>
+        
+        @if(currentStep() === 1) {
+        <div class="space-y-3">
+          <p class="text-gray-700 dark:text-gray-300">Haz clic en el botón para copiar la URL:</p>
+          <button 
+            (click)="step1CopyUrl()"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg">
+            <i class="fas fa-copy mr-2"></i>
+            Copiar URL de Chrome Flags
+          </button>
+        </div>
+        } @else if(step1Complete()) {
+        <div class="flex items-center text-green-700 dark:text-green-300">
+          <i class="fas fa-check mr-2"></i>
+          URL copiada correctamente
+        </div>
+        }
       </div>
 
+      <!-- PASO 2: Nueva pestaña -->
+      <div class="border-2 rounded-lg p-4 transition-all duration-300"
+           [class]="currentStep() >= 2 ? (currentStep() > 2 ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20') : 'border-gray-300 bg-gray-50 dark:bg-gray-700'">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="font-bold text-lg flex items-center gap-2">
+            @if(currentStep() > 2) {
+              <i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>
+            } @else if(currentStep() === 2) {
+              <i class="fas fa-circle text-blue-600 dark:text-blue-400 animate-pulse"></i>
+            } @else {
+              <i class="fas fa-circle text-gray-400"></i>
+            }
+            <span [class]="currentStep() >= 2 ? 'text-gray-900 dark:text-white' : 'text-gray-400'">
+              Paso 2: Abrir nueva pestaña
+            </span>
+          </h4>
+        </div>
+        
+        @if(currentStep() === 2) {
+        <div class="space-y-3">
+          <p class="text-gray-700 dark:text-gray-300">Presiona estas teclas para abrir una nueva pestaña:</p>
+          <div class="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600 rounded-lg p-4">
+            <div class="flex items-center justify-center gap-2 text-2xl font-bold text-yellow-800 dark:text-yellow-200">
+              <kbd class="bg-white dark:bg-gray-700 px-3 py-2 rounded shadow">Ctrl</kbd>
+              <span>+</span>
+              <kbd class="bg-white dark:bg-gray-700 px-3 py-2 rounded shadow">T</kbd>
+            </div>
+          </div>
+          <button 
+            (click)="step2NewTab()"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg">
+            <i class="fas fa-arrow-right mr-2"></i>
+            Ya abrí una nueva pestaña
+          </button>
+        </div>
+        }
+      </div>
 
+      <!-- PASO 3: Pegar URL -->
+      <div class="border-2 rounded-lg p-4 transition-all duration-300"
+           [class]="currentStep() >= 3 ? (currentStep() > 3 ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20') : 'border-gray-300 bg-gray-50 dark:bg-gray-700'">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="font-bold text-lg flex items-center gap-2">
+            @if(currentStep() > 3) {
+              <i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>
+            } @else if(currentStep() === 3) {
+              <i class="fas fa-circle text-blue-600 dark:text-blue-400 animate-pulse"></i>
+            } @else {
+              <i class="fas fa-circle text-gray-400"></i>
+            }
+            <span [class]="currentStep() >= 3 ? 'text-gray-900 dark:text-white' : 'text-gray-400'">
+              Paso 3: Pegar URL y navegar
+            </span>
+          </h4>
+        </div>
+        
+        @if(currentStep() === 3) {
+        <div class="space-y-3">
+          <p class="text-gray-700 dark:text-gray-300">En la nueva pestaña, pega la URL y presiona Enter:</p>
+          <div class="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600 rounded-lg p-4">
+            <div class="flex items-center justify-center gap-4 text-lg font-bold text-yellow-800 dark:text-yellow-200">
+              <div class="flex items-center gap-2">
+                <kbd class="bg-white dark:bg-gray-700 px-3 py-2 rounded shadow">Ctrl</kbd>
+                <span>+</span>
+                <kbd class="bg-white dark:bg-gray-700 px-3 py-2 rounded shadow">V</kbd>
+              </div>
+              <span class="text-gray-500">luego</span>
+              <kbd class="bg-white dark:bg-gray-700 px-3 py-2 rounded shadow">Enter</kbd>
+            </div>
+          </div>
+          <button 
+            (click)="step3PasteUrl()"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg">
+            <i class="fas fa-arrow-right mr-2"></i>
+            Ya pegué la URL y navegué
+          </button>
+        </div>
+        }
+      </div>
 
-      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-        <p class="text-blue-800 dark:text-blue-200 text-sm">
-          💡 <strong>Tip:</strong> Haz clic en cualquier campo verde para copiarlo automáticamente. El origin se copia al abrir este modal.
-        </p>
+      <!-- PASO 4: Copiar origin -->
+      <div class="border-2 rounded-lg p-4 transition-all duration-300"
+           [class]="currentStep() >= 4 ? (step4Complete() ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20') : 'border-gray-300 bg-gray-50 dark:bg-gray-700'">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="font-bold text-lg flex items-center gap-2">
+            @if(step4Complete()) {
+              <i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>
+            } @else if(currentStep() === 4) {
+              <i class="fas fa-circle text-blue-600 dark:text-blue-400 animate-pulse"></i>
+            } @else {
+              <i class="fas fa-circle text-gray-400"></i>
+            }
+            <span [class]="currentStep() >= 4 ? 'text-gray-900 dark:text-white' : 'text-gray-400'">
+              Paso 4: Configurar origin
+            </span>
+          </h4>
+        </div>
+        
+        @if(currentStep() === 4) {
+        <div class="space-y-3">
+          <p class="text-gray-700 dark:text-gray-300">Copia el origin para pegarlo en Chrome flags:</p>
+          <button 
+            (click)="step4CopyOrigin()"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg">
+            <i class="fas fa-copy mr-2"></i>
+            Copiar Origin: {{ currentOrigin }}
+          </button>
+          
+          @if(step4Complete()) {
+          <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4 mt-4">
+            <h5 class="font-semibold text-green-900 dark:text-green-100 mb-2">🎯 Instrucciones finales:</h5>
+            <ol class="text-green-800 dark:text-green-200 text-sm space-y-1 list-decimal list-inside">
+              <li>Busca: <strong>"Insecure origins treated as secure"</strong></li>
+              <li>Pega el origin en el campo de texto (Ctrl+V)</li>
+              <li>Cambia de "Disabled" a <strong>"Enabled"</strong></li>
+              <li>Haz clic en <strong>"Relaunch"</strong></li>
+            </ol>
+          </div>
+          }
+        </div>
+        }
       </div>
     </div>
 
