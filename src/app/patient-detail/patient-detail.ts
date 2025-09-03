@@ -39,6 +39,11 @@ export class PatientDetail implements OnInit {
   get currentOrigin(): string {
     return window.location.origin;
   }
+
+  // Para debugging de seguridad
+  get securityDebugInfo(): any {
+    return this._fileSvc.getSecurityDebugInfo();
+  }
   
   loadPatient = effect(() => {
     this.patientSignal.set(this.patient());

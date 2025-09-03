@@ -209,27 +209,58 @@ export class FileService {
     // 9) Generar y descargar archivo .bat para configurar política de registro
     downloadSecurityPolicyBat(): void {
         const origin = window.location.origin;
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        const port = window.location.port;
         
         const batContent = `@echo off
 REM Configurar Chrome/Edge para tratar ${origin} como origen seguro
 REM Esto habilita File System Access API en el origen especificado
 
-echo Configurando politica de seguridad para ${origin}...
+echo ========================================
+echo CONFIGURANDO ORIGEN SEGURO
+echo ========================================
+echo Origin: ${origin}
+echo Protocol: ${protocol}
+echo Hostname: ${hostname}
+echo Port: ${port}
+echo ========================================
 
-REM Crear clave de registro para Chrome
+REM Matar todos los procesos de navegadores
+echo Cerrando navegadores...
+taskkill /f /im chrome.exe >nul 2>&1
+taskkill /f /im msedge.exe >nul 2>&1
+timeout /t 2 >nul
+
+echo Configurando politica de seguridad...
+
+REM Crear claves de registro para Chrome (Sistema)
 reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome" /f >nul 2>&1
 reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
+echo Chrome (Sistema): OK
 
-REM Crear clave de registro para Edge
+REM Crear claves de registro para Edge (Sistema)  
 reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Edge" /f >nul 2>&1
 reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Edge" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
+echo Edge (Sistema): OK
 
-REM Tambien agregar para usuarios actuales (por si no tienen permisos de administrador)
+REM Crear claves de registro para Chrome (Usuario)
 reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome" /f >nul 2>&1
 reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
+echo Chrome (Usuario): OK
 
+REM Crear claves de registro para Edge (Usuario)
 reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Microsoft\\Edge" /f >nul 2>&1
 reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Microsoft\\Edge" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${origin}" /f
+echo Edge (Usuario): OK
+
+REM Tambien agregar variantes con y sin puerto por si acaso
+REM Solo el hostname con puerto
+set HOST_WITH_PORT=${hostname}:${port}
+reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${protocol}//%HOST_WITH_PORT%" /f >nul 2>&1
+reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Edge" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${protocol}//%HOST_WITH_PORT%" /f >nul 2>&1
+reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${protocol}//%HOST_WITH_PORT%" /f >nul 2>&1
+reg add "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Microsoft\\Edge" /v "OverrideSecurityRestrictionsOnInsecureOrigin" /t REG_SZ /d "${protocol}//%HOST_WITH_PORT%" /f >nul 2>&1
 
 echo.
 echo ============================================
@@ -238,14 +269,15 @@ echo ============================================
 echo.
 echo El origen ${origin} ha sido configurado como seguro.
 echo.
-echo IMPORTANTE: 
-echo 1. Cierra TODOS los navegadores (Chrome/Edge)
-echo 2. Abre nuevamente el navegador
-echo 3. La File System Access API deberia funcionar ahora
+echo PASOS IMPORTANTES:
+echo 1. ✓ Navegadores cerrados automaticamente
+echo 2. ✓ Politicas de registro aplicadas
+echo 3. → ABRE EL NAVEGADOR NUEVAMENTE
+echo 4. → Ve a: ${origin}
+echo 5. → Presiona F12 y en consola escribe: isSecureContext
+echo 6. → Deberia devolver: true
 echo.
-echo Para verificar: ve a ${origin} y abre las herramientas de desarrollador
-echo En la consola, escribe: isSecureContext
-echo Deberia devolver: true
+echo Si sigue devolviendo false, REINICIA EL SISTEMA
 echo.
 pause`;
 
@@ -255,7 +287,7 @@ pause`;
         
         const link = document.createElement('a');
         link.href = url;
-        link.download = `configurar-origen-seguro-${window.location.hostname}.bat`;
+        link.download = `configurar-origen-seguro-${window.location.hostname}-${window.location.port || '80'}.bat`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -266,6 +298,21 @@ pause`;
     // 10) Verificar si File System Access API está disponible
     isFileSystemAccessSupported(): boolean {
         return 'showDirectoryPicker' in window;
+    }
+
+    // 11) Método de debugging para verificar el estado de seguridad
+    getSecurityDebugInfo(): any {
+        return {
+            isSecureContext: window.isSecureContext,
+            protocol: window.location.protocol,
+            hostname: window.location.hostname,
+            port: window.location.port,
+            origin: window.location.origin,
+            hasFileSystemAPI: 'showDirectoryPicker' in window,
+            hasIndexedDB: 'indexedDB' in window,
+            userAgent: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
+                      navigator.userAgent.includes('Edge') ? 'Edge' : 'Other'
+        };
     }
 
 
