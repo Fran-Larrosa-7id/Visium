@@ -6,7 +6,17 @@
     <div class="flex items-center gap-3">
       <i class="fas fa-check-circle text-blue-300"></i>
       <span class="font-medium">
-        Archivo actualizado exitosamente
+        Archivo actual cargado correctamente
+      </span>
+    </div>
+  </div>
+  } @else if (showMessageSave()) {
+  <div
+    class="fixed bottom-6 left-[40%] z-50 bg-green-600/90 text-white px-6 py-3 rounded-lg shadow-lg backdrop-blur-sm border border-green-500/30 animate-pulse">
+    <div class="flex items-center gap-3">
+      <i class="fas fa-check-circle text-green-300"></i>
+      <span class="font-medium">
+        Archivo guardado exitosamente
       </span>
     </div>
   </div>
@@ -474,44 +484,25 @@
 
     <!-- Contenido explicativo -->
     <div class="space-y-4 mb-6">
-
-      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-        <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">¿Qué hace este botón?</h4>
-        <p class="text-blue-800 dark:text-blue-200 text-sm">
-          Este botón copia automáticamente <code class="bg-blue-100 dark:bg-blue-800 px-1 rounded">{{ currentOrigin }}</code> al portapapeles 
-          para que puedas pegarlo fácilmente en Chrome flags.
-        </p>
-      </div>
-
-      <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
-        <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">📋 Pasos simples:</h4>
-        <ol class="text-green-800 dark:text-green-200 text-sm space-y-1 list-decimal list-inside">
-          <li>Haz clic en <strong>"Copiar origin y continuar"</strong></li>
-          <li><strong>Abre manualmente</strong> una nueva pestaña en Chrome</li>
-          <li>Ve a: <code class="bg-green-100 dark:bg-green-800 px-1 rounded text-xs">chrome://flags</code></li>
-          <li>Busca: <strong>"Insecure origins treated as secure"</strong> (o usa Ctrl+F)</li>
-          <li><strong>Pega</strong> el origin (Ctrl+V) en el campo de texto</li>
-          <li>Cambia de "Disabled" a <strong>"Enabled"</strong></li>
-          <li>Haz clic en <strong>"Relaunch"</strong></li>
-        </ol>
-      </div>
-
+      
       <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
         <h4 class="font-semibold text-green-900 dark:text-green-100 mb-3">🔗 Enlaces directos:</h4>
         
         <div class="space-y-3">
           <div>
-            <p class="text-green-800 dark:text-green-200 text-sm mb-2">1. Ve a Chrome flags:</p>
-            <a href="chrome://flags/#unsafely-treat-insecure-origin-as-secure" 
-               target="_blank"
-               class="inline-block bg-green-100 dark:bg-green-800 text-green-900 dark:text-green-100 px-3 py-2 rounded text-sm font-mono break-all hover:bg-green-200 dark:hover:bg-green-700 transition-colors border border-green-300 dark:border-green-600">
+            <p class="text-green-800 dark:text-green-200 text-sm mb-2">1. Copia esta URL y pégala en una nueva pestaña:</p>
+            <div class="bg-green-100 dark:bg-green-800 text-green-900 dark:text-green-100 px-3 py-2 rounded text-sm font-mono break-all border border-green-300 dark:border-green-600 cursor-pointer select-all"
+                 (click)="copyToClipboard('chrome://flags/#unsafely-treat-insecure-origin-as-secure')"
+                 title="Haz clic para copiar">
               chrome://flags/#unsafely-treat-insecure-origin-as-secure
-            </a>
+            </div>
           </div>
           
           <div>
             <p class="text-green-800 dark:text-green-200 text-sm mb-2">2. Pega este origin en el campo de texto:</p>
-            <div class="bg-green-100 dark:bg-green-800 text-green-900 dark:text-green-100 px-3 py-2 rounded text-sm font-mono break-all border border-green-300 dark:border-green-600">
+            <div class="bg-green-100 dark:bg-green-800 text-green-900 dark:text-green-100 px-3 py-2 rounded text-sm font-mono break-all border border-green-300 dark:border-green-600 cursor-pointer select-all"
+                 (click)="copyToClipboard(currentOrigin)"
+                 title="Haz clic para copiar">
               {{ currentOrigin }}
             </div>
           </div>

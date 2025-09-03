@@ -123,6 +123,33 @@ export class PatientDetail implements OnInit {
   // Mostrar modal simplificado
   showSecurityConfigModal(): void {
     this.showSecurityModal.set(true);
+    // Copiar automáticamente el origin al abrir el modal
+    this.copyToClipboard(this.currentOrigin);
+  }
+
+  // Función para copiar texto al portapapeles
+  async copyToClipboard(text: string): Promise<void> {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        console.log('Texto copiado al portapapeles:', text);
+      } else {
+        // Fallback para contextos inseguros
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+        console.log('Texto copiado al portapapeles (fallback):', text);
+      }
+    } catch (err) {
+      console.error('Error al copiar al portapapeles:', err);
+    }
   }
 
 
