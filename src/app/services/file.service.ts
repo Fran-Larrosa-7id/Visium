@@ -4,118 +4,29 @@ import { openDB } from 'idb';
 
 @Injectable({ providedIn: 'root' })
 export class FileService {
-    private dbPromise = openDB('dat-fs', 1, {
-        upgrade(db) { db.createObjectStore('handles'); }
+    private dbPromise = openDB('dat-fs', 2, {
+        upgrade(db, oldVersion) { 
+            // Si la versión anterior era menor a 2, recrear el store
+            if (oldVersion < 2) {
+                // Eliminar el store anterior si existe
+                if (db.objectStoreNames.contains('handles')) {
+                    db.deleteObjectStore('handles');
+                }
+            }
+            // Crear el store
+            if (!db.objectStoreNames.contains('handles')) {
+                db.createObjectStore('handles');
+            }
+        }
     });
 
-    // POLYFILL: Simular FileSystem API sin HTTPS
-    constructor() {
-        this.initFileSystemPolyfill();
-    }
-
-    private initFileSystemPolyfill() {
-        // Solo crear polyfill si no existe la API nativa
-        if (!(window as any).showDirectoryPicker) {
-            console.log('🔧 POLYFILL ACTIVO: FileSystem API para HTTP iniciado correctamente');
-            console.log('✅ La aplicación funcionará sin HTTPS en http://181.29.107.180:5103/treelan/Visium/');
-            
-            (window as any).showDirectoryPicker = this.createDirectoryPicker.bind(this);
-        } else {
-            console.log('🌐 API FileSystem nativa disponible (HTTPS)');
-        }
-    }
-
-    private createDirectoryPicker() {
-        console.log('📁 Polyfill: Abriendo selector de carpeta...');
-        return new Promise((resolve) => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.webkitdirectory = true;
-            input.multiple = true;
-            input.style.display = 'none';
-            
-            const handleSelection = () => {
-                if (input.files && input.files.length > 0) {
-                    console.log(`✅ Polyfill: ${input.files.length} archivos seleccionados`);
-                    const mockHandle = this.createMockDirectoryHandle(input.files);
-                    resolve(mockHandle);
-                } else {
-                    console.log('❌ Polyfill: No se seleccionaron archivos');
-                    resolve(null);
-                }
-                document.body.removeChild(input);
-            };
-            
-            input.addEventListener('change', handleSelection);
-            input.addEventListener('cancel', () => {
-                console.log('🚫 Polyfill: Selección cancelada');
-                resolve(null);
-                document.body.removeChild(input);
-            });
-            
-            document.body.appendChild(input);
-            input.click();
-        });
-    }
-
-    private createMockDirectoryHandle(files: FileList) {
-        const fileArray = Array.from(files);
-        const datFiles = fileArray.filter(f => f.name.toLowerCase().endsWith('.dat'));
-        
-        console.log(`🗂️ Polyfill: Creando handle para ${fileArray.length} archivos (${datFiles.length} archivos .dat)`);
-        
-        return {
-            kind: 'directory',
-            name: 'selected-folder',
-            _isPolyfill: true, // Marcar como polyfill
-            _files: fileArray, // Guardar referencia a archivos
-            
-            // Simular entries() iterator
-            entries: async function* () {
-                for (const file of fileArray) {
-                    yield [file.name, {
-                        kind: 'file',
-                        name: file.name,
-                        _isPolyfill: true,
-                        getFile: () => Promise.resolve(file),
-                        queryPermission: () => Promise.resolve('granted' as PermissionState),
-                        requestPermission: () => Promise.resolve('granted' as PermissionState)
-                    }];
-                }
-            },
-            
-            // Simular getFileHandle()
-            getFileHandle: (name: string) => {
-                const file = fileArray.find(f => f.name === name);
-                if (!file) throw new Error(`File "${name}" not found`);
-                return Promise.resolve({
-                    kind: 'file',
-                    name: file.name,
-                    _isPolyfill: true,
-                    getFile: () => Promise.resolve(file),
-                    queryPermission: () => Promise.resolve('granted' as PermissionState),
-                    requestPermission: () => Promise.resolve('granted' as PermissionState)
-                });
-            },
-            
-            // Simular métodos de permisos
-            queryPermission: () => Promise.resolve('granted' as PermissionState),
-            requestPermission: () => Promise.resolve('granted' as PermissionState)
-        };
-    }
-
     private async saveHandle(key: string, handle: any) {
-        // No guardar handles del polyfill en IndexedDB (no son serializables)
-        if (handle && handle._isPolyfill) {
-            console.log('🔧 Polyfill handle - no guardando en IndexedDB');
-            return;
-        }
-        
         try {
             const db = await this.dbPromise;
             await db.put('handles', handle, key); // FileSystem*Handle se puede guardar en IndexedDB
         } catch (error) {
-            console.warn('No se pudo guardar handle:', error);
+            console.error('Error saving handle to IndexedDB:', error);
+            // En caso de error, continuar sin persistir
         }
     }
 
@@ -129,8 +40,13 @@ export class FileService {
         return this.restoreSaveDirectory();
     }
     private async loadHandle<T>(key: string): Promise<T | null> {
-        const db = await this.dbPromise;
-        return (await db.get('handles', key)) ?? null;
+        try {
+            const db = await this.dbPromise;
+            return (await db.get('handles', key)) ?? null;
+        } catch (error) {
+            console.error('Error loading handle from IndexedDB:', error);
+            return null;
+        }
     }
 
     // 1) Usuario elige carpeta de lectura (autorrefractiones)
@@ -270,5 +186,123 @@ export class FileService {
         return 'denied';
     }
 
+    // 8) Detectar si NO estamos en contexto seguro (mejorado)
+    // 8) Detectar si NO estamos en contexto seguro (mejorado)
+    isInsecureContext(): boolean {
+        // Si tenemos File System Access API disponible, entonces estamos en contexto seguro
+        if ('showDirectoryPicker' in window) {
+            return false;
+        }
+        
+        // Verificar si realmente NO estamos en contexto seguro
+        const isHttps = window.location.protocol === 'https:';
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        // Si no es HTTPS ni localhost, verificar si el navegador realmente considera esto seguro
+        if (!isHttps && !isLocalhost) {
+            // Si isSecureContext es true pero no tenemos la API, entonces hay un problema
+            return !window.isSecureContext;
+        }
+        
+        return false;
+    }
+
+    // 9) Copiar origin al portapapeles (método mejorado)
+    async copyOriginToClipboard(): Promise<boolean> {
+        const origin = window.location.origin;
+        
+        // Método 1: Clipboard API moderna (solo funciona en contexto seguro)
+        try {
+            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                await navigator.clipboard.writeText(origin);
+                console.log('✅ Origin copiado via Clipboard API');
+                return true;
+            }
+        } catch (error) {
+            console.warn('❌ Clipboard API falló:', error);
+        }
+        
+        // Método 2: document.execCommand (funciona en más contextos)
+        try {
+            const textArea = document.createElement('textarea');
+            textArea.value = origin;
+            
+            // Hacer el textarea invisible pero accessible
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            textArea.style.top = '-9999px';
+            textArea.style.opacity = '0';
+            textArea.style.pointerEvents = 'none';
+            textArea.style.zIndex = '-1';
+            
+            document.body.appendChild(textArea);
+            
+            // Seleccionar y copiar
+            textArea.focus();
+            textArea.select();
+            textArea.setSelectionRange(0, textArea.value.length);
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            if (successful) {
+                console.log('✅ Origin copiado via execCommand');
+                return true;
+            } else {
+                console.warn('❌ execCommand falló');
+            }
+        } catch (error) {
+            console.error('❌ Error en execCommand:', error);
+        }
+        
+        // Método 3: Selección manual como último recurso
+        try {
+            const textArea = document.createElement('textarea');
+            textArea.value = origin;
+            textArea.style.width = '300px';
+            textArea.style.height = '50px';
+            textArea.style.position = 'fixed';
+            textArea.style.top = '50%';
+            textArea.style.left = '50%';
+            textArea.style.transform = 'translate(-50%, -50%)';
+            textArea.style.zIndex = '9999';
+            textArea.style.background = 'white';
+            textArea.style.border = '2px solid blue';
+            textArea.style.padding = '10px';
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            // Mostrar instrucciones
+            alert('No se pudo copiar automáticamente. El texto está seleccionado. Presiona Ctrl+C para copiarlo.');
+            
+            document.body.removeChild(textArea);
+            return false;
+        } catch (error) {
+            console.error('❌ Todos los métodos fallaron:', error);
+            return false;
+        }
+    }
+
+    // 10) Verificar si File System Access API está disponible
+    isFileSystemAccessSupported(): boolean {
+        return 'showDirectoryPicker' in window;
+    }
+
+    // 11) Método de debugging para verificar el estado de seguridad
+    getSecurityDebugInfo(): any {
+        return {
+            isSecureContext: window.isSecureContext,
+            protocol: window.location.protocol,
+            hostname: window.location.hostname,
+            port: window.location.port,
+            origin: window.location.origin,
+            hasFileSystemAPI: 'showDirectoryPicker' in window,
+            hasIndexedDB: 'indexedDB' in window,
+            userAgent: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
+                      navigator.userAgent.includes('Edge') ? 'Edge' : 'Other'
+        };
+    }
 
 }
