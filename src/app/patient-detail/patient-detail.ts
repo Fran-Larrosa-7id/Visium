@@ -31,6 +31,7 @@ export class PatientDetail implements OnInit {
   showMessageSave = signal<boolean>(false);
   showModal = signal<{ title: string; content: string } | null>(null);
   showSecurityModal = signal<boolean>(false);
+  showCopyMessage = signal<string | null>(null); // Para mostrar feedback de copiado
   name = signal<string>('');
   hc = signal<string>('');
   lastSelectedPatientHc = signal<string | null>(null); // Para trackear cambios
@@ -130,6 +131,8 @@ export class PatientDetail implements OnInit {
   // Función para copiar texto al portapapeles
   async copyToClipboard(text: string): Promise<void> {
     try {
+      let message = '';
+      
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
         console.log('Texto copiado al portapapeles:', text);
@@ -147,8 +150,30 @@ export class PatientDetail implements OnInit {
         textArea.remove();
         console.log('Texto copiado al portapapeles (fallback):', text);
       }
+      
+      // Determinar qué se copió para el mensaje
+      if (text.includes('chrome://flags')) {
+        message = '¡URL de Chrome flags copiada!';
+      } else if (text === this.currentOrigin) {
+        message = '¡Origin copiado!';
+      } else {
+        message = '¡Texto copiado!';
+      }
+      
+      // Mostrar feedback visual
+      this.showCopyMessage.set(message);
+      
+      // Ocultar el mensaje después de 2 segundos
+      setTimeout(() => {
+        this.showCopyMessage.set(null);
+      }, 2000);
+      
     } catch (err) {
       console.error('Error al copiar al portapapeles:', err);
+      this.showCopyMessage.set('Error al copiar');
+      setTimeout(() => {
+        this.showCopyMessage.set(null);
+      }, 2000);
     }
   }
 
