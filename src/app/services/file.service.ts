@@ -4,24 +4,30 @@ import { openDB } from 'idb';
 
 @Injectable({ providedIn: 'root' })
 export class FileService {
-    private dbPromise = openDB('dat-fs', 1, {
-        upgrade(db) { db.createObjectStore('handles'); }
+    private dbPromise = openDB('dat-fs', 2, {
+        upgrade(db, oldVersion) { 
+            // Si la versión anterior era menor a 2, recrear el store
+            if (oldVersion < 2) {
+                // Eliminar el store anterior si existe
+                if (db.objectStoreNames.contains('handles')) {
+                    db.deleteObjectStore('handles');
+                }
+            }
+            // Crear el store
+            if (!db.objectStoreNames.contains('handles')) {
+                db.createObjectStore('handles');
+            }
+        }
     });
 
-    // HACK: Override para forzar contexto seguro (obviar restricción HTTPS)
-    constructor() {
-        // Forzar que el navegador piense que está en contexto seguro
-        if (!(window as any).isSecureContext) {
-            Object.defineProperty(window, 'isSecureContext', {
-                value: true,
-                writable: false
-            });
-        }
-    }
-
     private async saveHandle(key: string, handle: any) {
-        const db = await this.dbPromise;
-        await db.put('handles', handle, key); // FileSystem*Handle se puede guardar en IndexedDB
+        try {
+            const db = await this.dbPromise;
+            await db.put('handles', handle, key); // FileSystem*Handle se puede guardar en IndexedDB
+        } catch (error) {
+            console.error('Error saving handle to IndexedDB:', error);
+            // En caso de error, continuar sin persistir
+        }
     }
 
     // Método público para guardar carpeta de guardado
@@ -34,8 +40,13 @@ export class FileService {
         return this.restoreSaveDirectory();
     }
     private async loadHandle<T>(key: string): Promise<T | null> {
-        const db = await this.dbPromise;
-        return (await db.get('handles', key)) ?? null;
+        try {
+            const db = await this.dbPromise;
+            return (await db.get('handles', key)) ?? null;
+        } catch (error) {
+            console.error('Error loading handle from IndexedDB:', error);
+            return null;
+        }
     }
 
     // 1) Usuario elige carpeta de lectura (autorrefractiones)
@@ -175,12 +186,24 @@ export class FileService {
         return 'denied';
     }
 
-    // 8) Detectar si NO estamos en contexto seguro
+    // 8) Detectar si NO estamos en contexto seguro (mejorado)
     isInsecureContext(): boolean {
-        // Verificar si realmente NO estamos en contexto seguro (no el hack)
+        // Si tenemos File System Access API disponible, entonces estamos en contexto seguro
+        if ('showDirectoryPicker' in window) {
+            return false;
+        }
+        
+        // Verificar si realmente NO estamos en contexto seguro
         const isHttps = window.location.protocol === 'https:';
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        return !isHttps && !isLocalhost;
+        
+        // Si no es HTTPS ni localhost, verificar si el navegador realmente considera esto seguro
+        if (!isHttps && !isLocalhost) {
+            // Si isSecureContext es true pero no tenemos la API, entonces hay un problema
+            return !window.isSecureContext;
+        }
+        
+        return false;
     }
 
     // 9) Generar y descargar archivo .bat para configurar política de registro
