@@ -37,6 +37,7 @@ export class PatientDetail implements OnInit {
   currentStep = signal<number>(1); // Paso actual en la secuencia
   step1Complete = signal<boolean>(false); // URL copiada
   step4Complete = signal<boolean>(false); // Origin copiado
+  secureContext = signal<boolean>(false); // Asumir seguro inicialmente
   
   name = signal<string>('');
   hc = signal<string>('');
@@ -92,6 +93,7 @@ export class PatientDetail implements OnInit {
 
   async ngOnInit() {
     this.config();
+    this.isInsecureContext();
   }
 
   private async config() {
@@ -118,8 +120,10 @@ export class PatientDetail implements OnInit {
   }
 
   // Verificar si estamos en contexto inseguro
-  isInsecureContext(): boolean {
-    return this._fileSvc.isInsecureContext();
+  isInsecureContext() {
+    setTimeout(() => {
+      this.secureContext.set(this._fileSvc.isInsecureContext());
+    }, 3000);
   }
 
   // Verificar si File System Access API está soportada

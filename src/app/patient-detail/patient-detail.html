@@ -95,14 +95,6 @@
         </button>
         }
 
-        @if(isInsecureContext()){
-        <button
-          class="group relative inline-flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 dark:text-amber-100 dark:bg-amber-900/30 dark:border-amber-600 transition-all duration-200 shadow-sm hover:shadow-md"
-          (click)="showSecurityConfigModal()">
-          <i class="fa-solid fa-external-link-alt text-amber-600 dark:text-amber-400"></i>
-          <span>Configurar Chrome</span>
-        </button>
-        }
       </div>
     </div>
   </div>
@@ -460,7 +452,7 @@
 }
 
 <!-- Modal para configuración de seguridad -->
-@if(showSecurityModal()) {
+@if(secureContext()) {
 <div class="fixed inset-0 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
   <!-- Backdrop -->
   <div class="absolute inset-0 bg-black/60 backdrop-blur-md animate-in fade-in duration-200" (click)="showSecurityModal.set(false)"></div>
@@ -475,15 +467,9 @@
       <div class="flex-1 min-w-0">
         <h3 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">Configurar Origen Seguro</h3>
         <p class="text-gray-600 dark:text-gray-300 mt-2 leading-relaxed">
-          Para usar la File System Access API desde HTTP, necesitas configurar tu navegador para tratar este origen como seguro.
+          Para que Visium funcione bien, necesitamos que tu navegador reconozca este sitio como “seguro”. Solo tenés que configurarlo por única vez.
         </p>
       </div>
-      <!-- Botón cerrar (X) -->
-      <button 
-        (click)="showSecurityModal.set(false)"
-        class="flex-shrink-0 w-8 h-8 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105">
-        <i class="fas fa-times text-gray-500 dark:text-gray-400 text-sm"></i>
-      </button>
     </div>
 
     <!-- Contenido de secuencia guiada -->
@@ -514,7 +500,7 @@
             (click)="step1CopyUrl()"
             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg">
             <i class="fas fa-copy mr-2"></i>
-            Copiar URL de Chrome Flags
+            Copiar URL
           </button>
         </div>
         } @else if(step1Complete()) {
@@ -630,38 +616,28 @@
         
         @if(currentStep() === 4) {
         <div class="space-y-3">
-          <p class="text-gray-700 dark:text-gray-300">Copia el origin para pegarlo en Chrome flags:</p>
+          <p class="text-gray-700 dark:text-gray-300">Copia este link para pegarlo en el recuadro de Chrome flags:</p>
           <button 
             (click)="step4CopyOrigin()"
             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg">
             <i class="fas fa-copy mr-2"></i>
-            Copiar Origin: {{ currentOrigin }}
+            Copiar: {{ currentOrigin }}
           </button>
           
           @if(step4Complete()) {
           <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4 mt-4">
             <h5 class="font-semibold text-green-900 dark:text-green-100 mb-2">🎯 Instrucciones finales:</h5>
             <ol class="text-green-800 dark:text-green-200 text-sm space-y-1 list-decimal list-inside">
-              <li>Ya estarás en el campo correcto: <strong>"Insecure origins treated as secure"</strong></li>
-              <li><strong>Haz clic en el recuadro de texto</strong> y pega el origin copiado (Ctrl+V)</li>
+              <li>Ya estás en el campo correcto: <strong>"Insecure origins treated as secure"</strong></li>
+              <li><strong>Hace clic en el recuadro de texto</strong> y pega el link copiado (Ctrl+V)</li>
               <li>En el menú desplegable, cambia de "Disabled" a <strong>"Enabled"</strong></li>
-              <li>Haz clic en el botón azul <strong>"Relaunch"</strong> para reiniciar Chrome</li>
+              <li>Hace clic en el botón azul <strong>"Relaunch"</strong> para reiniciar Chrome</li>
             </ol>
           </div>
           }
         </div>
         }
       </div>
-    </div>
-
-    <!-- Botones de acción -->
-    <div class="flex gap-3 justify-end">
-      <button 
-        (click)="showSecurityModal.set(false)"
-        class="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 shadow-lg">
-        <i class="fas fa-check mr-2"></i>
-        Entendido
-      </button>
     </div>
   </div>
 </div>
