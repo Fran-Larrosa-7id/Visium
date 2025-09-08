@@ -627,11 +627,18 @@
           @if(step4Complete()) {
           <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4 mt-4">
             <h5 class="font-semibold text-green-900 dark:text-green-100 mb-2">🎯 Instrucciones finales:</h5>
-            <ol class="text-green-800 dark:text-green-200 text-sm space-y-1 list-decimal list-inside">
+            <ol class="text-green-800 dark:text-green-200 text-sm space-y-2 list-decimal list-inside">
               <li>Ya estás en el campo correcto: <strong>"Insecure origins treated as secure"</strong></li>
               <li><strong>Hace clic en el recuadro de texto</strong> y pega el link copiado (Ctrl+V)</li>
               <li>En el menú desplegable, cambia de "Disabled" a <strong>"Enabled"</strong></li>
-              <li>Hace clic en el botón azul <strong>"Relaunch"</strong> para reiniciar Chrome</li>
+              <li class="space-y-1">
+                <div>Hace clic en el botón azul <strong>"Relaunch"</strong> que aparecerá en la <strong>esquina inferior derecha</strong> de la pantalla</div>
+                <div class="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600 rounded p-2 ml-4 mt-1">
+                  <span class="text-yellow-800 dark:text-yellow-200 text-xs">
+                    💡 <strong>Alternativa:</strong> Si no ves el botón "Relaunch", simplemente cierra Chrome completamente y vuelve a abrirlo
+                  </span>
+                </div>
+              </li>
             </ol>
           </div>
           }
