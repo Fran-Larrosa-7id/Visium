@@ -22,10 +22,17 @@ export class History implements OnInit {
   private _fileSvc = inject(FileService);
   private parser = new DatParserService();
   private refractionDataSvc = inject(RefractionDataService);
-  
+
   files = signal<HistoryFile[]>([]);
   loading = signal(false);
   selectedFile = signal<string | null>(null);
+
+  checkFileSaved = effect(() => {
+    if (this._fileSvc.fileSaved()) {
+      this.refreshHistory();
+      this._fileSvc.fileSaved.set(false);
+    }
+  });
 
   async ngOnInit() {
     await this.loadHistoryFiles();
@@ -45,7 +52,7 @@ export class History implements OnInit {
           minute: '2-digit'
         })
       }));
-      
+
       this.files.set(historyFiles);
     } catch (error) {
       console.error('Error loading history files:', error);
@@ -61,10 +68,10 @@ export class History implements OnInit {
       if (fileData) {
         const refraction = this.parser.parseDat(fileData.text);
         this.selectedFile.set(filename);
-        
+
         // Enviar los datos al servicio compartido para que PatientDetail los muestre
         this.refractionDataSvc.setRefractionFromHistory(refraction);
-        
+
         console.log('Archivo del historial cargado:', filename);
       }
     } catch (error) {

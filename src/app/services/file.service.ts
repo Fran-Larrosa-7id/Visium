@@ -1,8 +1,9 @@
 // dat-fs.service.ts
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class FileService {
+    fileSaved = signal<boolean>(false);
     // URL base donde están hosteados los archivos .dat
     // private readonly BASE_URL = 'http://181.29.107.180:5103/treelan/estudios/test/';
     private readonly BASE_URL = 'http://localhost/treelan/datLectura/';
@@ -164,6 +165,7 @@ export class FileService {
             }
             
             const result = await response.json();
+            this.fileSaved.set(true);
             console.log('Archivo guardado exitosamente en el servidor:', filename, result);
             return true;
         } catch (error) {
