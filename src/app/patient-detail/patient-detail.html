@@ -1,35 +1,13 @@
 <section
   class="relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg h-full overflow-hidden flex flex-col">
+  
   @if(showMessage()) {
   <div
     class="fixed bottom-6 left-[40%] z-50 bg-blue-600/90 text-white px-6 py-3 rounded-lg shadow-lg backdrop-blur-sm border border-blue-500/30 animate-pulse">
     <div class="flex items-center gap-3">
       <i class="fas fa-check-circle text-blue-300"></i>
       <span class="font-medium">
-        Archivo actual cargado correctamente
-      </span>
-    </div>
-  </div>
-  } @else if (showMessageSave()) {
-  <div
-    class="fixed bottom-6 left-[40%] z-50 bg-green-600/90 text-white px-6 py-3 rounded-lg shadow-lg backdrop-blur-sm border border-green-500/30 animate-pulse">
-    <div class="flex items-center gap-3">
-      <i class="fas fa-check-circle text-green-300"></i>
-      <span class="font-medium">
         Archivo guardado exitosamente
-      </span>
-    </div>
-  </div>
-  }
-  
-  <!-- Notificación de copiado -->
-  @if(showCopyMessage()) {
-  <div
-    class="fixed bottom-6 right-6 z-50 bg-purple-600/90 text-white px-6 py-3 rounded-lg shadow-lg backdrop-blur-sm border border-purple-500/30 animate-pulse">
-    <div class="flex items-center gap-3">
-      <i class="fas fa-copy text-purple-300"></i>
-      <span class="font-medium">
-        {{ showCopyMessage() }}
       </span>
     </div>
   </div>
@@ -42,16 +20,17 @@
         <img class="w-[60px] rounded-lg" src="assets/ojo.svg" alt="">
         <div>
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Autorefracción</h2>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Análisis de refracción automática</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Análisis de refracción automática desde servidor</p>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
         <button
           class="group relative inline-flex items-center gap-3 px-6 py-3 text-base font-medium rounded-xl border border-teal-300 bg-teal-50 hover:bg-teal-100 text-teal-900 dark:text-teal-100 dark:bg-teal-900/30 dark:border-teal-600 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md"
-          (click)="loadLatestFrom(linked()); showSuccessMessage()">
-          <i class="fa-solid fa-arrows-rotate text-teal-600 dark:text-teal-400 text-lg"></i>
-          <span>Actualizar</span>
+          [disabled]="busy()"
+          (click)="refreshData()">
+          <i class="fa-solid fa-arrows-rotate text-teal-600 dark:text-teal-400 text-lg" [class.fa-spin]="busy()"></i>
+          <span>{{ busy() ? 'Actualizando...' : 'Actualizar' }}</span>
         </button>
 
         <button
@@ -60,48 +39,22 @@
           <i class="fa-solid fa-floppy-disk text-green-600 dark:text-green-400 text-lg"></i>
           <span>Guardar</span>
         </button>
-        <!-- TODO: A futuro -->
-        <!-- <button (click)="exportJSON()"
-          class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md">
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-          </svg>
-          JSON
-        </button> -->
-        @if(!isDirectory()) {
-        <button
-          class="group relative inline-flex items-center gap-3 px-6 py-3 text-base font-medium rounded-xl border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-900 dark:text-blue-100 dark:bg-blue-900/30 dark:border-blue-600 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md"
-          (click)="linkFolder()">
-          <i class="fa-solid fa-gear text-blue-600 dark:text-blue-400 text-lg"></i>
-          <span>Vincular carpeta de lectura</span>
-        </button>
-        }
-
-        @if(isDirectory() && !isSaveFolderLinked()) {
-        <button
-          class="group relative inline-flex items-center gap-3 px-6 py-3 text-base font-medium rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-900 dark:text-purple-100 dark:bg-purple-900/30 dark:border-purple-600 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md"
-          (click)="linkSaveFolder()">
-          <i class="fa-solid fa-folder-plus text-purple-600 dark:text-purple-400 text-lg"></i>
-          <span>Vincular carpeta de guardado</span>
-        </button>
-        }
-
-        @if(needsPermission()){
-        <button
-          class="inline-flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 dark:text-amber-100 dark:bg-amber-900/30 dark:border-amber-600 transition-all duration-200 shadow-sm hover:shadow-md"
-          (click)="grantAccess()">
-          <i class="fa-solid fa-lock-open text-main"></i>
-          <span>Permitir acceso a la carpeta</span>
-        </button>
-        }
-
       </div>
     </div>
   </div>
 
+
+
   <!-- Refracciones -->
   <div class="flex-1 overflow-auto p-6">
-    @if(refracciones().length > 0) {
+    @if(busy()) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <i class="fas fa-spinner fa-spin text-3xl text-teal-500 mb-4"></i>
+          <p class="text-gray-600 dark:text-gray-400">Cargando datos...</p>
+        </div>
+      </div>
+    } @else if(refracciones().length > 0) {
     @let r = refracciones()[0];
 
     <article
@@ -302,7 +255,7 @@
         </div>
       </div>
 
-      <!-- Patient and Equipment Info (ahora abajo, cards más chicas) -->
+      <!-- Patient Info, Equipment and Measurements -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-8 max-w-6xl mx-auto items-stretch">
         <!-- Paciente Card -->
         <div
@@ -399,252 +352,39 @@
       </div>
     </article>
     } @else {
-    <div class="flex flex-col items-center justify-center h-64 text-center">
-      <div class="h-16 w-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
-        <svg class="h-8 w-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <i class="fas fa-file-medical text-gray-400 text-4xl mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay datos disponibles</h3>
+          <p class="text-gray-600 dark:text-gray-400 mb-4">
+            No se encontraron archivos .dat en el servidor o no hay datos para mostrar.
+          </p>
+          <button
+            class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+            (click)="refreshData()">
+            <i class="fas fa-refresh"></i>
+            Intentar de nuevo
+          </button>
+        </div>
       </div>
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay datos de refracción</h3>
-      <p class="text-gray-500 dark:text-gray-400 max-w-sm">Carga un archivo .dat para ver los resultados de la
-        auto-refracción del paciente.</p>
-    </div>
     }
   </div>
 </section>
 
-<!-- Modal para errores -->
+<!-- Modal -->
 @if(showModal()) {
-<div class="fixed inset-0 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-  <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black/60 backdrop-blur-md animate-in fade-in duration-200" (click)="showModal.set(null)"></div>
-  
-  <!-- Modal Content -->
-  <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-600 p-6 max-w-md w-full mx-4 animate-in zoom-in-95 slide-in-from-bottom-3 duration-300">
-    <!-- Header con icono -->
-    <div class="flex items-start gap-4 mb-4">
-      <div class="flex-shrink-0 w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-        <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-xl"></i>
-      </div>
-      <div class="flex-1 min-w-0">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">{{ showModal()!.title }}</h3>
-        <p class="text-gray-600 dark:text-gray-300 mt-2 leading-relaxed">{{ showModal()!.content }}</p>
-      </div>
-      <!-- Botón cerrar (X) -->
-      <button 
-        (click)="showModal.set(null)"
-        class="flex-shrink-0 w-8 h-8 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105">
-        <i class="fas fa-times text-gray-500 dark:text-gray-400 text-sm"></i>
+<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+  (click)="showModal.set(null)">
+  <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full border border-gray-200 dark:border-gray-600 shadow-xl"
+    (click)="$event.stopPropagation()">
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ showModal()!.title }}</h3>
+    <p class="text-gray-600 dark:text-gray-400 mb-6">{{ showModal()!.content }}</p>
+    <div class="flex justify-end">
+      <button
+        class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+        (click)="showModal.set(null)">
+        Cerrar
       </button>
-    </div>
-
-    <!-- Botones de acción -->
-    <div class="flex gap-3 justify-end mt-6">
-      <button 
-        (click)="showModal.set(null)"
-        class="px-6 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-xl transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 shadow-lg">
-        Entendido
-      </button>
-    </div>
-  </div>
-</div>
-}
-
-<!-- Modal para configuración de seguridad -->
-@if(secureContext()) {
-<div class="fixed inset-0 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-  <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black/60 backdrop-blur-md animate-in fade-in duration-200" (click)="showSecurityModal.set(false)"></div>
-  
-  <!-- Modal Content -->
-  <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-600 p-6 max-w-2xl w-full mx-4 animate-in zoom-in-95 slide-in-from-bottom-3 duration-300">
-    <!-- Header con icono -->
-    <div class="flex items-start gap-4 mb-6">
-      <div class="flex-shrink-0 w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
-        <i class="fas fa-shield-halved text-orange-600 dark:text-orange-400 text-xl"></i>
-      </div>
-      <div class="flex-1 min-w-0">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">Configurar Origen Seguro</h3>
-        <p class="text-gray-600 dark:text-gray-300 mt-2 leading-relaxed">
-          Para que Visium funcione bien, necesitamos que tu navegador reconozca este sitio como “seguro”. Solo tenés que configurarlo por única vez.
-        </p>
-      </div>
-    </div>
-
-    <!-- Contenido de secuencia guiada -->
-    <div class="space-y-4 mb-6">
-      
-      <!-- PASO 1: Copiar URL -->
-      <div class="border-2 rounded-lg p-4 transition-all duration-300"
-           [class]="currentStep() >= 1 ? (step1Complete() ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20') : 'border-gray-300 bg-gray-50 dark:bg-gray-700'">
-        <div class="flex items-center justify-between mb-3">
-          <h4 class="font-bold text-lg flex items-center gap-2">
-            @if(step1Complete()) {
-              <i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>
-            } @else if(currentStep() === 1) {
-              <i class="fas fa-circle text-blue-600 dark:text-blue-400 animate-pulse"></i>
-            } @else {
-              <i class="fas fa-circle text-gray-400"></i>
-            }
-            <span [class]="currentStep() >= 1 ? 'text-gray-900 dark:text-white' : 'text-gray-400'">
-              Paso 1: Copiar URL de Chrome
-            </span>
-          </h4>
-        </div>
-        
-        @if(currentStep() === 1) {
-        <div class="space-y-3">
-          <p class="text-gray-700 dark:text-gray-300">Haz clic en el botón para copiar la URL:</p>
-          <button 
-            (click)="step1CopyUrl()"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg">
-            <i class="fas fa-copy mr-2"></i>
-            Copiar URL
-          </button>
-        </div>
-        } @else if(step1Complete()) {
-        <div class="flex items-center text-green-700 dark:text-green-300">
-          <i class="fas fa-check mr-2"></i>
-          URL copiada correctamente
-        </div>
-        }
-      </div>
-
-      <!-- PASO 2: Nueva pestaña -->
-      <div class="border-2 rounded-lg p-4 transition-all duration-300"
-           [class]="currentStep() >= 2 ? (currentStep() > 2 ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20') : 'border-gray-300 bg-gray-50 dark:bg-gray-700'">
-        <div class="flex items-center justify-between mb-3">
-          <h4 class="font-bold text-lg flex items-center gap-2">
-            @if(currentStep() > 2) {
-              <i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>
-            } @else if(currentStep() === 2) {
-              <i class="fas fa-circle text-blue-600 dark:text-blue-400 animate-pulse"></i>
-            } @else {
-              <i class="fas fa-circle text-gray-400"></i>
-            }
-            <span [class]="currentStep() >= 2 ? 'text-gray-900 dark:text-white' : 'text-gray-400'">
-              Paso 2: Abrir nueva pestaña
-            </span>
-          </h4>
-        </div>
-        
-        @if(currentStep() === 2) {
-        <div class="space-y-3">
-          <p class="text-gray-700 dark:text-gray-300">Presiona estas teclas para abrir una nueva pestaña:</p>
-          <div class="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600 rounded-lg p-4">
-            <div class="flex items-center justify-center gap-2 text-2xl font-bold text-yellow-800 dark:text-yellow-200">
-              <kbd class="bg-white dark:bg-gray-700 px-3 py-2 rounded shadow">Ctrl</kbd>
-              <span>+</span>
-              <kbd class="bg-white dark:bg-gray-700 px-3 py-2 rounded shadow">T</kbd>
-            </div>
-          </div>
-          <button 
-            (click)="step2NewTab()"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg">
-            <i class="fas fa-arrow-right mr-2"></i>
-            Ya abrí una nueva pestaña
-          </button>
-        </div>
-        }
-      </div>
-
-      <!-- PASO 3: Pegar URL -->
-      <div class="border-2 rounded-lg p-4 transition-all duration-300"
-           [class]="currentStep() >= 3 ? (currentStep() > 3 ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20') : 'border-gray-300 bg-gray-50 dark:bg-gray-700'">
-        <div class="flex items-center justify-between mb-3">
-          <h4 class="font-bold text-lg flex items-center gap-2">
-            @if(currentStep() > 3) {
-              <i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>
-            } @else if(currentStep() === 3) {
-              <i class="fas fa-circle text-blue-600 dark:text-blue-400 animate-pulse"></i>
-            } @else {
-              <i class="fas fa-circle text-gray-400"></i>
-            }
-            <span [class]="currentStep() >= 3 ? 'text-gray-900 dark:text-white' : 'text-gray-400'">
-              Paso 3: Pegar URL y navegar
-            </span>
-          </h4>
-        </div>
-        
-        @if(currentStep() === 3) {
-        <div class="space-y-3">
-          <p class="text-gray-700 dark:text-gray-300">En la nueva pestaña, pega la URL en la barra de direcciones y presiona Enter:</p>
-          <div class="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600 rounded-lg p-4">
-            <div class="flex items-center justify-center gap-4 text-lg font-bold text-yellow-800 dark:text-yellow-200">
-              <div class="flex items-center gap-2">
-                <kbd class="bg-white dark:bg-gray-700 px-3 py-2 rounded shadow">Ctrl</kbd>
-                <span>+</span>
-                <kbd class="bg-white dark:bg-gray-700 px-3 py-2 rounded shadow">V</kbd>
-              </div>
-              <span class="text-gray-500">luego</span>
-              <kbd class="bg-white dark:bg-gray-700 px-3 py-2 rounded shadow">Enter</kbd>
-            </div>
-          </div>
-          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
-            <p class="text-blue-800 dark:text-blue-200 text-sm">
-              💡 <strong>Nota:</strong> Chrome te llevará directamente al campo "Insecure origins treated as secure"
-            </p>
-          </div>
-          <button 
-            (click)="step3PasteUrl()"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg">
-            <i class="fas fa-arrow-right mr-2"></i>
-            Ya pegué la URL y navegué
-          </button>
-        </div>
-        }
-      </div>
-
-      <!-- PASO 4: Copiar origin -->
-      <div class="border-2 rounded-lg p-4 transition-all duration-300"
-           [class]="currentStep() >= 4 ? (step4Complete() ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20') : 'border-gray-300 bg-gray-50 dark:bg-gray-700'">
-        <div class="flex items-center justify-between mb-3">
-          <h4 class="font-bold text-lg flex items-center gap-2">
-            @if(step4Complete()) {
-              <i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>
-            } @else if(currentStep() === 4) {
-              <i class="fas fa-circle text-blue-600 dark:text-blue-400 animate-pulse"></i>
-            } @else {
-              <i class="fas fa-circle text-gray-400"></i>
-            }
-            <span [class]="currentStep() >= 4 ? 'text-gray-900 dark:text-white' : 'text-gray-400'">
-              Paso 4: Configurar origin
-            </span>
-          </h4>
-        </div>
-        
-        @if(currentStep() === 4) {
-        <div class="space-y-3">
-          <p class="text-gray-700 dark:text-gray-300">Copia este link para pegarlo en el recuadro de Chrome flags:</p>
-          <button 
-            (click)="step4CopyOrigin()"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg">
-            <i class="fas fa-copy mr-2"></i>
-            Copiar: {{ currentOrigin }}
-          </button>
-          
-          @if(step4Complete()) {
-          <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4 mt-4">
-            <h5 class="font-semibold text-green-900 dark:text-green-100 mb-2">🎯 Instrucciones finales:</h5>
-            <ol class="text-green-800 dark:text-green-200 text-sm space-y-2 list-decimal list-inside">
-              <li>Ya estás en el campo correcto: <strong>"Insecure origins treated as secure"</strong></li>
-              <li><strong>Hace clic en el recuadro de texto</strong> y pega el link copiado (Ctrl+V)</li>
-              <li>En el menú desplegable, cambia de "Disabled" a <strong>"Enabled"</strong></li>
-              <li class="space-y-1">
-                <div>Hace clic en el botón azul <strong>"Relaunch"</strong> que aparecerá en la <strong>esquina inferior derecha</strong> de la pantalla</div>
-                <div class="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600 rounded p-2 ml-4 mt-1">
-                  <span class="text-yellow-800 dark:text-yellow-200 text-xs">
-                    💡 <strong>Alternativa:</strong> Si no ves el botón "Relaunch", simplemente cierra Chrome completamente y vuelve a abrirlo
-                  </span>
-                </div>
-              </li>
-            </ol>
-          </div>
-          }
-        </div>
-        }
-      </div>
     </div>
   </div>
 </div>

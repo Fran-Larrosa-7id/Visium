@@ -1,296 +1,293 @@
 // dat-fs.service.ts
 import { Injectable } from '@angular/core';
-import { openDB } from 'idb';
 
 @Injectable({ providedIn: 'root' })
 export class FileService {
-    private dbPromise = openDB('dat-fs', 2, {
-        upgrade(db, oldVersion) { 
-            // Si la versión anterior era menor a 2, recrear el store
-            if (oldVersion < 2) {
-                // Eliminar el store anterior si existe
-                if (db.objectStoreNames.contains('handles')) {
-                    db.deleteObjectStore('handles');
-                }
-            }
-            // Crear el store
-            if (!db.objectStoreNames.contains('handles')) {
-                db.createObjectStore('handles');
-            }
-        }
-    });
-
-    private async saveHandle(key: string, handle: any) {
-        try {
-            const db = await this.dbPromise;
-            await db.put('handles', handle, key); // FileSystem*Handle se puede guardar en IndexedDB
-        } catch (error) {
-            console.error('Error saving handle to IndexedDB:', error);
-            // En caso de error, continuar sin persistir
-        }
-    }
-
-    // Método público para guardar carpeta de guardado
-    async saveSaveDirectory(handle: FileSystemDirectoryHandle) {
-        await this.saveHandle('saveDir', handle);
-    }
-
-    // 7) Obtener la carpeta de guardado actual (útil para el historial)
-    async getCurrentSaveDirectory(): Promise<FileSystemDirectoryHandle | null> {
-        return this.restoreSaveDirectory();
-    }
-    private async loadHandle<T>(key: string): Promise<T | null> {
-        try {
-            const db = await this.dbPromise;
-            return (await db.get('handles', key)) ?? null;
-        } catch (error) {
-            console.error('Error loading handle from IndexedDB:', error);
-            return null;
-        }
-    }
-
-    // 1) Usuario elige carpeta de lectura (autorrefractiones)
-    async pickReadDirectory(): Promise<FileSystemDirectoryHandle | null> {
-        const dir = await (window as any).showDirectoryPicker?.();
-        if (!dir) return null;
-        // guardamos
-        await this.saveHandle('readDir', dir);
-        return dir;
-    }
-
-    // 1b) Usuario elige carpeta de guardado (exportaciones)
-    async pickSaveDirectory(): Promise<FileSystemDirectoryHandle | null> {
-        const dir = await (window as any).showDirectoryPicker?.();
-        if (!dir) return null;
-        // guardamos
-        await this.saveHandle('saveDir', dir);
-        return dir;
-    }
-
-    // 2) Intentar restaurar carpeta de lectura
-    async restoreReadDirectory(): Promise<FileSystemDirectoryHandle | null> {
-        const dir = await this.loadHandle<FileSystemDirectoryHandle>('readDir');
-        return dir ?? null; // NO pidas permisos acá
-    }
-
-    // 2b) Intentar restaurar carpeta de guardado
-    async restoreSaveDirectory(): Promise<FileSystemDirectoryHandle | null> {
-        const dir = await this.loadHandle<FileSystemDirectoryHandle>('saveDir');
-        return dir ?? null; // NO pidas permisos acá
-    }
-
-
-
-    // Método legacy para compatibilidad (usa carpeta de lectura)
-    async pickDatDirectory(): Promise<FileSystemDirectoryHandle | null> {
-        return this.pickReadDirectory();
-    }
-
-    // Método legacy para compatibilidad (usa carpeta de lectura)
-    async restoreDirectory(): Promise<FileSystemDirectoryHandle | null> {
-        return this.restoreReadDirectory();
-    }
+    // URL base donde están hosteados los archivos .dat
+    // private readonly BASE_URL = 'http://181.29.107.180:5103/treelan/estudios/test/';
+    private readonly BASE_URL = 'http://localhost/treelan/datLectura/';
+    private readonly DOWNLOAD_URL = 'http://localhost/treelan/datDownload/';
+    private readonly UPLOAD_SCRIPT = 'http://localhost/treelan/datDownload/upload.php';
     
-    // 3) Pedir/verificar permisos de lectura
-    async verifyPermission(handle: FileSystemHandle, readWrite = false): Promise<boolean> {
-        const opts: any = { mode: readWrite ? 'readwrite' : 'read' };
-        // @ts-ignore
-        if ('queryPermission' in handle) {
-            // @ts-ignore
-            let perm = await (handle as any).queryPermission(opts);
-            if (perm === 'granted') return true;
-            // @ts-ignore
-            perm = await (handle as any).requestPermission(opts);
-            return perm === 'granted';
-        }
-        return false;
-    }
+    constructor() {}
 
-    // 4) Buscar el .dat más reciente dentro de la carpeta
-    async readLatestDatText(dir: FileSystemDirectoryHandle | null): Promise<{ name: string, text: string } | null> {
-        const files: { name: string; handle: FileSystemFileHandle; lastModified: number }[] = [];
-        if (!dir) return null;
-        // Iterar entradas de la carpeta
-        // for-await funciona en handles
-        // @ts-ignore
-        for await (const [name, handle] of (dir as any).entries()) {
-            if (handle.kind === 'file' && name.toLowerCase().endsWith('.dat')) {
-                const file = await (handle as FileSystemFileHandle).getFile();
-                files.push({ name, handle, lastModified: file.lastModified });
-            }
-        }
-
-        if (!files.length) return null;
-        files.sort((a, b) => b.lastModified - a.lastModified); // más nuevo primero
-        const latest = files[0];
-        const text = await (await latest.handle.getFile()).text();
-        return { name: latest.name, text };
-    }
-
-    // 5) Listar todos los archivos .dat de una carpeta (para historial)
-    async listAllDatFiles(dir: FileSystemDirectoryHandle | null): Promise<{ name: string, lastModified: number, size: number }[]> {
-        const files: { name: string, lastModified: number, size: number }[] = [];
-        if (!dir) return files;
-        
+    /**
+     * Obtiene la lista de archivos .dat disponibles desde el servidor
+     * Hace una petición HTTP GET para obtener el directorio
+     */
+    async getAvailableDatFiles(): Promise<{ name: string, lastModified: number, size: number }[]> {
         try {
-            // @ts-ignore
-            for await (const [name, handle] of (dir as any).entries()) {
-                if (handle.kind === 'file' && name.toLowerCase().endsWith('.dat')) {
-                    const file = await (handle as FileSystemFileHandle).getFile();
-                    files.push({ 
-                        name, 
-                        lastModified: file.lastModified,
-                        size: file.size
+            const response = await fetch(this.BASE_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const html = await response.text();
+            
+            // Parsear el HTML del directorio para encontrar archivos .dat
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const links = doc.querySelectorAll('a[href$=".dat"]');
+            
+            const files: { name: string, lastModified: number, size: number }[] = [];
+            
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href.endsWith('.dat')) {
+                    // Extraer información del archivo desde el HTML del directorio Apache
+                    const row = link.closest('tr');
+                    let lastModified = Date.now();
+                    let size = 0;
+                    
+                    if (row) {
+                        const cells = row.querySelectorAll('td');
+                        if (cells.length >= 3) {
+                            // Intentar parsear fecha (formato típico de Apache)
+                            const dateText = cells[1]?.textContent?.trim();
+                            if (dateText) {
+                                const parsedDate = new Date(dateText);
+                                if (!isNaN(parsedDate.getTime())) {
+                                    lastModified = parsedDate.getTime();
+                                }
+                            }
+                            
+                            // Intentar parsear tamaño
+                            const sizeText = cells[2]?.textContent?.trim();
+                            if (sizeText && sizeText !== '-') {
+                                const sizeMatch = sizeText.match(/(\d+(?:\.\d+)?)\s*([KMGT]?B?)/i);
+                                if (sizeMatch) {
+                                    let fileSize = parseFloat(sizeMatch[1]);
+                                    const unit = sizeMatch[2].toUpperCase();
+                                    
+                                    switch (unit) {
+                                        case 'KB': fileSize *= 1024; break;
+                                        case 'MB': fileSize *= 1024 * 1024; break;
+                                        case 'GB': fileSize *= 1024 * 1024 * 1024; break;
+                                        case 'TB': fileSize *= 1024 * 1024 * 1024 * 1024; break;
+                                    }
+                                    size = Math.round(fileSize);
+                                }
+                            }
+                        }
+                    }
+                    
+                    files.push({
+                        name: href,
+                        lastModified,
+                        size
                     });
                 }
-            }
+            });
+            
             // Ordenar por fecha de modificación (más reciente primero)
             files.sort((a, b) => b.lastModified - a.lastModified);
+            
+            return files;
         } catch (error) {
-            console.error('Error listing files:', error);
+            console.error('Error getting available .dat files:', error);
+            return [];
         }
-        
-        return files;
     }
 
-    // 6) Leer un archivo específico por nombre
-    async readSpecificDatFile(dir: FileSystemDirectoryHandle | null, filename: string): Promise<{ name: string, text: string } | null> {
-        if (!dir) return null;
-        
+    /**
+     * Lee el contenido de un archivo .dat específico desde el servidor
+     */
+    async readDatFile(filename: string): Promise<{ name: string, text: string } | null> {
         try {
-            const fileHandle = await (dir as any).getFileHandle(filename);
-            const file = await fileHandle.getFile();
-            const text = await file.text();
+            const url = `${this.BASE_URL}${filename}`;
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const text = await response.text();
             return { name: filename, text };
         } catch (error) {
-            console.error('Error reading specific file:', error);
+            console.error('Error reading .dat file:', error);
             return null;
         }
     }
 
-
-    async queryPerm(handle: FileSystemHandle, readWrite = false): Promise<PermissionState> {
-        if ('queryPermission' in handle) {
-            // @ts-ignore
-            return (handle as any).queryPermission({ mode: readWrite ? 'readwrite' : 'read' });
-        }
-        return 'denied';
-    }
-
-    async requestPermWithUserGesture(handle: FileSystemHandle, readWrite = false): Promise<PermissionState> {
-        // LLAMAR SOLO DESDE UN CLICK
-        if ('requestPermission' in handle) {
-            // @ts-ignore
-            return (handle as any).requestPermission({ mode: readWrite ? 'readwrite' : 'read' });
-        }
-        return 'denied';
-    }
-
-    // 8) Detectar si NO estamos en contexto seguro (mejorado)
-    // 8) Detectar si NO estamos en contexto seguro (mejorado)
-    isInsecureContext(): boolean {
-        // Si tenemos File System Access API disponible, entonces estamos en contexto seguro
-        if ('showDirectoryPicker' in window) {
-            return false;
-        }
-        
-        // Verificar si realmente NO estamos en contexto seguro
-        const isHttps = window.location.protocol === 'https:';
-        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        
-        // Si no es HTTPS ni localhost, verificar si el navegador realmente considera esto seguro
-        if (!isHttps && !isLocalhost) {
-            // Si isSecureContext es true pero no tenemos la API, entonces hay un problema
-            return !window.isSecureContext;
-        }
-        
-        return false;
-    }
-
-    // 9) Copiar origin al portapapeles (método mejorado)
-    async copyOriginToClipboard(): Promise<boolean> {
-        const origin = window.location.origin;
-        
-        // Método 1: Clipboard API moderna (solo funciona en contexto seguro)
+    /**
+     * Lee el archivo .dat más reciente disponible
+     */
+    async readLatestDatText(): Promise<{ name: string, text: string } | null> {
         try {
-            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-                await navigator.clipboard.writeText(origin);
-                console.log('✅ Origin copiado via Clipboard API');
-                return true;
+            const files = await this.getAvailableDatFiles();
+            if (files.length === 0) {
+                console.warn('No .dat files found');
+                return null;
             }
+            
+            // Tomar el archivo más reciente (ya están ordenados por fecha)
+            const latestFile = files[0];
+            return await this.readDatFile(latestFile.name);
         } catch (error) {
-            console.warn('❌ Clipboard API falló:', error);
+            console.error('Error reading latest .dat file:', error);
+            return null;
         }
-        
-        // Método 2: document.execCommand (funciona en más contextos)
+    }
+
+    /**
+     * Listar todos los archivos .dat disponibles (para historial)
+     */
+    async listAllDatFiles(): Promise<{ name: string, lastModified: number, size: number }[]> {
+        return await this.getAvailableDatFiles();
+    }
+
+    /**
+     * Leer un archivo específico por nombre (para historial)
+     */
+    async readSpecificDatFile(filename: string): Promise<{ name: string, text: string } | null> {
+        return await this.readDatFile(filename);
+    }
+
+    /**
+     * Guarda un archivo .dat en el servidor usando HTTP POST
+     */
+    async saveDatFile(filename: string, content: string): Promise<boolean> {
         try {
-            const textArea = document.createElement('textarea');
-            textArea.value = origin;
+            const formData = new FormData();
+            formData.append('filename', filename);
+            formData.append('content', content);
             
-            // Hacer el textarea invisible pero accessible
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-9999px';
-            textArea.style.top = '-9999px';
-            textArea.style.opacity = '0';
-            textArea.style.pointerEvents = 'none';
-            textArea.style.zIndex = '-1';
+            const response = await fetch(this.UPLOAD_SCRIPT, {
+                method: 'POST',
+                body: formData
+            });
             
-            document.body.appendChild(textArea);
-            
-            // Seleccionar y copiar
-            textArea.focus();
-            textArea.select();
-            textArea.setSelectionRange(0, textArea.value.length);
-            
-            const successful = document.execCommand('copy');
-            document.body.removeChild(textArea);
-            
-            if (successful) {
-                console.log('✅ Origin copiado via execCommand');
-                return true;
-            } else {
-                console.warn('❌ execCommand falló');
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server response:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            
+            const result = await response.json();
+            console.log('Archivo guardado exitosamente en el servidor:', filename, result);
+            return true;
         } catch (error) {
-            console.error('❌ Error en execCommand:', error);
-        }
-        
-        // Método 3: Selección manual como último recurso
-        try {
-            const textArea = document.createElement('textarea');
-            textArea.value = origin;
-            textArea.style.width = '300px';
-            textArea.style.height = '50px';
-            textArea.style.position = 'fixed';
-            textArea.style.top = '50%';
-            textArea.style.left = '50%';
-            textArea.style.transform = 'translate(-50%, -50%)';
-            textArea.style.zIndex = '9999';
-            textArea.style.background = 'white';
-            textArea.style.border = '2px solid blue';
-            textArea.style.padding = '10px';
-            
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            
-            // Mostrar instrucciones
-            alert('No se pudo copiar automáticamente. El texto está seleccionado. Presiona Ctrl+C para copiarlo.');
-            
-            document.body.removeChild(textArea);
-            return false;
-        } catch (error) {
-            console.error('❌ Todos los métodos fallaron:', error);
+            console.error('Error saving .dat file to server:', error);
             return false;
         }
     }
 
-    // 10) Verificar si File System Access API está disponible
+    /**
+     * Obtiene la lista de archivos .dat del historial (carpeta de descarga/guardado)
+     */
+    async getHistoryDatFiles(): Promise<{ name: string, lastModified: number, size: number }[]> {
+        try {
+            const response = await fetch(this.DOWNLOAD_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const html = await response.text();
+            
+            // Parsear el HTML del directorio para encontrar archivos .dat
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const links = doc.querySelectorAll('a[href$=".dat"]');
+            
+            const files: { name: string, lastModified: number, size: number }[] = [];
+            
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href.endsWith('.dat')) {
+                    // Extraer información del archivo desde el HTML del directorio Apache
+                    const row = link.closest('tr');
+                    let lastModified = Date.now();
+                    let size = 0;
+                    
+                    if (row) {
+                        const cells = row.querySelectorAll('td');
+                        if (cells.length >= 3) {
+                            // Intentar parsear fecha (formato típico de Apache)
+                            const dateText = cells[1]?.textContent?.trim();
+                            if (dateText) {
+                                const parsedDate = new Date(dateText);
+                                if (!isNaN(parsedDate.getTime())) {
+                                    lastModified = parsedDate.getTime();
+                                }
+                            }
+                            
+                            // Intentar parsear tamaño
+                            const sizeText = cells[2]?.textContent?.trim();
+                            if (sizeText && sizeText !== '-') {
+                                const sizeMatch = sizeText.match(/(\d+(?:\.\d+)?)\s*([KMGT]?B?)/i);
+                                if (sizeMatch) {
+                                    let fileSize = parseFloat(sizeMatch[1]);
+                                    const unit = sizeMatch[2].toUpperCase();
+                                    
+                                    switch (unit) {
+                                        case 'KB': fileSize *= 1024; break;
+                                        case 'MB': fileSize *= 1024 * 1024; break;
+                                        case 'GB': fileSize *= 1024 * 1024 * 1024; break;
+                                        case 'TB': fileSize *= 1024 * 1024 * 1024 * 1024; break;
+                                    }
+                                    size = Math.round(fileSize);
+                                }
+                            }
+                        }
+                    }
+                    
+                    files.push({
+                        name: href,
+                        lastModified,
+                        size
+                    });
+                }
+            });
+            
+            // Ordenar por fecha de modificación (más reciente primero)
+            files.sort((a, b) => b.lastModified - a.lastModified);
+            
+            return files;
+        } catch (error) {
+            console.error('Error getting history .dat files:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Lee un archivo específico del historial por nombre
+     */
+    async readHistoryDatFile(filename: string): Promise<{ name: string, text: string } | null> {
+        try {
+            const url = `${this.DOWNLOAD_URL}${filename}`;
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const text = await response.text();
+            return { name: filename, text };
+        } catch (error) {
+            console.error('Error reading history .dat file:', error);
+            return null;
+        }
+    }
+
+    // Métodos simplificados para mantener compatibilidad con el código existente
+    
+    /**
+     * Verifica si el servicio está disponible (siempre true para HTTP)
+     */
     isFileSystemAccessSupported(): boolean {
-        return 'showDirectoryPicker' in window;
+        return true; // HTTP siempre está disponible
     }
 
-    // 11) Método de debugging para verificar el estado de seguridad
+    /**
+     * Verifica si estamos en contexto inseguro (ya no aplica con HTTP)
+     */
+    isInsecureContext(): boolean {
+        return false; // Con HTTP ya no hay problemas de contexto seguro
+    }
+
+    /**
+     * Información de debugging del estado de seguridad
+     */
     getSecurityDebugInfo(): any {
         return {
             isSecureContext: window.isSecureContext,
@@ -298,11 +295,10 @@ export class FileService {
             hostname: window.location.hostname,
             port: window.location.port,
             origin: window.location.origin,
-            hasFileSystemAPI: 'showDirectoryPicker' in window,
-            hasIndexedDB: 'indexedDB' in window,
+            hasHttpAccess: true, // Siempre true para HTTP
+            baseUrl: this.BASE_URL,
             userAgent: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
                       navigator.userAgent.includes('Edge') ? 'Edge' : 'Other'
         };
     }
-
 }

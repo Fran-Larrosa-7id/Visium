@@ -26,47 +26,15 @@ export class History implements OnInit {
   files = signal<HistoryFile[]>([]);
   loading = signal(false);
   selectedFile = signal<string | null>(null);
-  saveFolder = signal<FileSystemDirectoryHandle | null>(null);
 
   async ngOnInit() {
-    await this.loadSaveFolderAndFiles();
-  }
-
-  // Efecto para detectar cuando se guardan nuevos archivos
-  detectNewFiles = effect(() => {
-    // Escuchar cambios en filesSaved del servicio
-    this.refractionDataSvc.filesSaved();
-    // Si es la primera vez que se guardan archivos, cargar la carpeta de guardado
-    this.refractionDataSvc._firstTimeFilesSaved();
-    // Recargar archivos cuando se detecte un nuevo guardado
-    this.loadHistoryFiles();
-  });
-
-  async loadSaveFolderAndFiles() {
-    const folder = await this._fileSvc.getCurrentSaveDirectory();
-    if (folder) {
-      this.saveFolder.set(folder);
-      await this.loadHistoryFiles();
-    }
+    await this.loadHistoryFiles();
   }
 
   async loadHistoryFiles() {
-    const folder = this.saveFolder();
-    if (!folder) {
-      // Intentar cargar la carpeta de guardado si no está disponible
-      const newFolder = await this._fileSvc.getCurrentSaveDirectory();
-      if (newFolder) {
-        this.saveFolder.set(newFolder);
-        await this.loadHistoryFiles();
-        return;
-      }
-      this.files.set([]);
-      return;
-    }
-
     this.loading.set(true);
     try {
-      const fileList = await this._fileSvc.listAllDatFiles(folder);
+      const fileList = await this._fileSvc.getHistoryDatFiles();
       const historyFiles = fileList.map(file => ({
         ...file,
         displayDate: new Date(file.lastModified).toLocaleString('es-ES', {
@@ -88,11 +56,8 @@ export class History implements OnInit {
   }
 
   async onFileClick(filename: string) {
-    const folder = this.saveFolder();
-    if (!folder) return;
-
     try {
-      const fileData = await this._fileSvc.readSpecificDatFile(folder, filename);
+      const fileData = await this._fileSvc.readHistoryDatFile(filename);
       if (fileData) {
         const refraction = this.parser.parseDat(fileData.text);
         this.selectedFile.set(filename);
