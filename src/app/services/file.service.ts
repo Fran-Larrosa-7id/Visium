@@ -5,10 +5,15 @@ import { Injectable, signal } from '@angular/core';
 export class FileService {
     fileSaved = signal<boolean>(false);
     // URL base donde están hosteados los archivos .dat
-    // private readonly BASE_URL = 'http://181.29.107.180:5103/treelan/estudios/test/';
-    private readonly BASE_URL = 'http://localhost/treelan/datLectura/';
-    private readonly DOWNLOAD_URL = 'http://localhost/treelan/datDownload/';
-    private readonly UPLOAD_SCRIPT = 'http://localhost/treelan/datDownload/upload.php';
+    // Producción
+    private readonly BASE_URL = 'http://181.29.107.180:5103/treelan/estudios/test/';
+    private readonly DOWNLOAD_URL = 'http://181.29.107.180:5103/treelan/estudios/test/download';
+    private readonly UPLOAD_SCRIPT = 'http://181.29.107.180:5103/treelan/estudios/test/upload.php';
+
+    // URLS Locales para desarrollo
+    // private readonly BASE_URL = 'http://localhost/treelan/datLectura/';
+    // private readonly DOWNLOAD_URL = 'http://localhost/treelan/datDownload/';
+    // private readonly UPLOAD_SCRIPT = 'http://localhost/treelan/datDownload/upload.php';
     
     constructor() {}
 
