@@ -19,7 +19,7 @@ servidor_web/
 └── treelan/
     ├── datLectura/          # Archivos originales del equipo
     │   └── archivo_equipo.dat
-    └── datDownload/         # Archivos procesados y guardados
+    └── download/         # Archivos procesados y guardados
         ├── upload.php       # Script de guardado
         └── archivo_guardado.dat
 ```

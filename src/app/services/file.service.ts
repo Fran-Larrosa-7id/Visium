@@ -5,17 +5,27 @@ import { Injectable, signal } from '@angular/core';
 export class FileService {
     fileSaved = signal<boolean>(false);
     // URL base donde están hosteados los archivos .dat
-    // Producción
+
+    // Produccion
+    // private readonly BASE_URL = 'http://181.29.107.180/treelan/estudios/test/';
+    // private readonly DOWNLOAD_URL = 'http://181.29.107.180/treelan/estudios/test/download';
+    // private readonly UPLOAD_SCRIPT = 'http://181.29.107.180/treelan/estudios/test/download/upload.php';
+
+    // Servidor Test
     private readonly BASE_URL = 'http://181.29.107.180:5103/treelan/estudios/test/';
     private readonly DOWNLOAD_URL = 'http://181.29.107.180:5103/treelan/estudios/test/download';
-    private readonly UPLOAD_SCRIPT = 'http://181.29.107.180:5103/treelan/estudios/test/upload.php';
+    private readonly UPLOAD_SCRIPT = 'http://181.29.107.180:5103/treelan/estudios/test/download/upload.php';
 
-    // URLS Locales para desarrollo
+    // Servidor Preprod
+    // private readonly BASE_URL = 'http://181.29.107.180:5101/treelan/estudios/test/';
+    // private readonly DOWNLOAD_URL = 'http://181.29.107.180:5101/treelan/estudios/test/download';
+    // private readonly UPLOAD_SCRIPT = 'http://181.29.107.180:5101/treelan/estudios/test/download/upload.php';
+    // URLS Locales para desarrollo local 
     // private readonly BASE_URL = 'http://localhost/treelan/datLectura/';
     // private readonly DOWNLOAD_URL = 'http://localhost/treelan/datDownload/';
-    // private readonly UPLOAD_SCRIPT = 'http://localhost/treelan/datDownload/upload.php';
-    
-    constructor() {}
+    // private readonly UPLOAD_SCRIPT = 'http://localhost/treelan/datDownload/download/upload.php';
+
+    constructor() { }
 
     /**
      * Obtiene la lista de archivos .dat disponibles desde el servidor
@@ -27,16 +37,16 @@ export class FileService {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const html = await response.text();
-            
+
             // Parsear el HTML del directorio para encontrar archivos .dat
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const links = doc.querySelectorAll('a[href$=".dat"]');
-            
+
             const files: { name: string, lastModified: number, size: number }[] = [];
-            
+
             links.forEach(link => {
                 const href = link.getAttribute('href');
                 if (href && href.endsWith('.dat')) {
@@ -44,7 +54,7 @@ export class FileService {
                     const row = link.closest('tr');
                     let lastModified = Date.now();
                     let size = 0;
-                    
+
                     if (row) {
                         const cells = row.querySelectorAll('td');
                         if (cells.length >= 3) {
@@ -56,7 +66,7 @@ export class FileService {
                                     lastModified = parsedDate.getTime();
                                 }
                             }
-                            
+
                             // Intentar parsear tamaño
                             const sizeText = cells[2]?.textContent?.trim();
                             if (sizeText && sizeText !== '-') {
@@ -64,7 +74,7 @@ export class FileService {
                                 if (sizeMatch) {
                                     let fileSize = parseFloat(sizeMatch[1]);
                                     const unit = sizeMatch[2].toUpperCase();
-                                    
+
                                     switch (unit) {
                                         case 'KB': fileSize *= 1024; break;
                                         case 'MB': fileSize *= 1024 * 1024; break;
@@ -76,7 +86,7 @@ export class FileService {
                             }
                         }
                     }
-                    
+
                     files.push({
                         name: href,
                         lastModified,
@@ -84,10 +94,10 @@ export class FileService {
                     });
                 }
             });
-            
+
             // Ordenar por fecha de modificación (más reciente primero)
             files.sort((a, b) => b.lastModified - a.lastModified);
-            
+
             return files;
         } catch (error) {
             console.error('Error getting available .dat files:', error);
@@ -102,11 +112,11 @@ export class FileService {
         try {
             const url = `${this.BASE_URL}${filename}`;
             const response = await fetch(url);
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const text = await response.text();
             return { name: filename, text };
         } catch (error) {
@@ -125,7 +135,7 @@ export class FileService {
                 console.warn('No .dat files found');
                 return null;
             }
-            
+
             // Tomar el archivo más reciente (ya están ordenados por fecha)
             const latestFile = files[0];
             return await this.readDatFile(latestFile.name);
@@ -157,18 +167,18 @@ export class FileService {
             const formData = new FormData();
             formData.append('filename', filename);
             formData.append('content', content);
-            
+
             const response = await fetch(this.UPLOAD_SCRIPT, {
                 method: 'POST',
                 body: formData
             });
-            
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Server response:', errorText);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const result = await response.json();
             this.fileSaved.set(true);
             console.log('Archivo guardado exitosamente en el servidor:', filename, result);
@@ -188,16 +198,16 @@ export class FileService {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const html = await response.text();
-            
+
             // Parsear el HTML del directorio para encontrar archivos .dat
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const links = doc.querySelectorAll('a[href$=".dat"]');
-            
+
             const files: { name: string, lastModified: number, size: number }[] = [];
-            
+
             links.forEach(link => {
                 const href = link.getAttribute('href');
                 if (href && href.endsWith('.dat')) {
@@ -205,7 +215,7 @@ export class FileService {
                     const row = link.closest('tr');
                     let lastModified = Date.now();
                     let size = 0;
-                    
+
                     if (row) {
                         const cells = row.querySelectorAll('td');
                         if (cells.length >= 3) {
@@ -217,7 +227,7 @@ export class FileService {
                                     lastModified = parsedDate.getTime();
                                 }
                             }
-                            
+
                             // Intentar parsear tamaño
                             const sizeText = cells[2]?.textContent?.trim();
                             if (sizeText && sizeText !== '-') {
@@ -225,7 +235,7 @@ export class FileService {
                                 if (sizeMatch) {
                                     let fileSize = parseFloat(sizeMatch[1]);
                                     const unit = sizeMatch[2].toUpperCase();
-                                    
+
                                     switch (unit) {
                                         case 'KB': fileSize *= 1024; break;
                                         case 'MB': fileSize *= 1024 * 1024; break;
@@ -237,7 +247,7 @@ export class FileService {
                             }
                         }
                     }
-                    
+
                     files.push({
                         name: href,
                         lastModified,
@@ -245,10 +255,10 @@ export class FileService {
                     });
                 }
             });
-            
+
             // Ordenar por fecha de modificación (más reciente primero)
             files.sort((a, b) => b.lastModified - a.lastModified);
-            
+
             return files;
         } catch (error) {
             console.error('Error getting history .dat files:', error);
@@ -263,11 +273,11 @@ export class FileService {
         try {
             const url = `${this.DOWNLOAD_URL}${filename}`;
             const response = await fetch(url);
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const text = await response.text();
             return { name: filename, text };
         } catch (error) {
@@ -277,7 +287,7 @@ export class FileService {
     }
 
     // Métodos simplificados para mantener compatibilidad con el código existente
-    
+
     /**
      * Verifica si el servicio está disponible (siempre true para HTTP)
      */
@@ -304,8 +314,8 @@ export class FileService {
             origin: window.location.origin,
             hasHttpAccess: true, // Siempre true para HTTP
             baseUrl: this.BASE_URL,
-            userAgent: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
-                      navigator.userAgent.includes('Edge') ? 'Edge' : 'Other'
+            userAgent: navigator.userAgent.includes('Chrome') ? 'Chrome' :
+                navigator.userAgent.includes('Edge') ? 'Edge' : 'Other'
         };
     }
 }
