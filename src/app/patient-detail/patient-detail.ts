@@ -20,7 +20,7 @@ export class PatientDetail implements OnInit {
   private _fileSvc = inject(FileService);
   private refractionDataSvc = inject(RefractionDataService);
   busy = signal(false);
-  showMessage = signal<boolean>(false);
+  showMessage = signal<string | null>(null);  // Cambiado de boolean a string
   showModal = signal<{ title: string; content: string } | null>(null);
   
   name = signal<string>('');
@@ -100,18 +100,16 @@ export class PatientDetail implements OnInit {
    */
   async refreshData() {
     await this.loadLatestDat();
-    this.showSuccessMessage();
+    this.showSuccessMessage('Datos actualizados correctamente');
   }
 
-
-
   /**
-   * show success message
+   * show success message with custom text
    */
-  showSuccessMessage() {
-    this.showMessage.set(true);
+  showSuccessMessage(message: string) {
+    this.showMessage.set(message);
     setTimeout(() => {
-      this.showMessage.set(false);
+      this.showMessage.set(null);
     }, 2500);
   }
 
@@ -136,7 +134,7 @@ export class PatientDetail implements OnInit {
       
       if (success) {
         // Mostrar mensaje de éxito
-        this.showSuccessMessage();
+        this.showSuccessMessage('Archivo guardado exitosamente');
         console.log('Archivo guardado en el servidor:', filename);
       } else {
         this.showModal.set({ 
