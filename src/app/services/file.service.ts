@@ -4,28 +4,57 @@ import { Injectable, signal } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class FileService {
     fileSaved = signal<boolean>(false);
-    // URL base donde están hosteados los archivos .dat
+    
+    // URLs dinámicas basadas en el origen actual
+    private readonly BASE_URL: string;
+    private readonly DOWNLOAD_URL: string;
+    private readonly UPLOAD_SCRIPT: string;
 
-    // Produccion
-    // private readonly BASE_URL = 'http://181.29.107.180/treelan/estudios/test/';
-    // private readonly DOWNLOAD_URL = 'http://181.29.107.180/treelan/estudios/test/download';
-    // private readonly UPLOAD_SCRIPT = 'http://181.29.107.180/treelan/estudios/test/download/upload.php';
-
-    // Servidor Test
-    private readonly BASE_URL = 'http://181.29.107.180:5103/treelan/estudios/test/';
-    private readonly DOWNLOAD_URL = 'http://181.29.107.180:5103/treelan/estudios/test/download';
-    private readonly UPLOAD_SCRIPT = 'http://181.29.107.180:5103/treelan/estudios/test/download/upload.php';
-
-    // Servidor Preprod
-    // private readonly BASE_URL = 'http://181.29.107.180:5101/treelan/estudios/test/';
-    // private readonly DOWNLOAD_URL = 'http://181.29.107.180:5101/treelan/estudios/test/download';
-    // private readonly UPLOAD_SCRIPT = 'http://181.29.107.180:5101/treelan/estudios/test/download/upload.php';
-    // URLS Locales para desarrollo local 
-    // private readonly BASE_URL = 'http://localhost/treelan/datLectura/';
-    // private readonly DOWNLOAD_URL = 'http://localhost/treelan/datDownload/';
-    // private readonly UPLOAD_SCRIPT = 'http://localhost/treelan/datDownload/download/upload.php';
-
-    constructor() { }
+    constructor() {
+        // Detectar el entorno basado en la URL actual
+        const currentOrigin = window.location.origin;
+        const currentPort = window.location.port;
+        
+        // Configuración automática según el puerto/origen
+        if (currentOrigin.includes('localhost')) {
+            // Desarrollo local
+            this.BASE_URL = 'http://localhost/treelan/datLectura/';
+            this.DOWNLOAD_URL = 'http://localhost/treelan/datDownload/';
+            this.UPLOAD_SCRIPT = 'http://localhost/treelan/datDownload/upload.php';
+        } else {
+            // Servidor remoto - determinar entorno por puerto
+            const serverBase = 'http://181.29.107.180';
+            
+            switch (currentPort) {
+                case '5103': // Test
+                    this.BASE_URL = `${serverBase}:5103/treelan/estudios/test/`;
+                    this.DOWNLOAD_URL = `${serverBase}:5103/treelan/estudios/test/download/`;
+                    this.UPLOAD_SCRIPT = `${serverBase}:5103/treelan/estudios/test/download/upload.php`;
+                    break;
+                    
+                case '5101': // Preprod
+                    this.BASE_URL = `${serverBase}:5101/treelan/estudios/test/`;
+                    this.DOWNLOAD_URL = `${serverBase}:5101/treelan/estudios/test/download/`;
+                    this.UPLOAD_SCRIPT = `${serverBase}:5101/treelan/estudios/test/download/upload.php`;
+                    break;
+                    
+                default: // Producción (puerto 80 o sin puerto específico)
+                    this.BASE_URL = `${serverBase}/treelan/estudios/test/`;
+                    this.DOWNLOAD_URL = `${serverBase}/treelan/estudios/test/download/`;
+                    this.UPLOAD_SCRIPT = `${serverBase}/treelan/estudios/test/download/upload.php`;
+                    break;
+            }
+        }
+        
+        // Log para debugging
+        console.log('🔧 FileService configurado para:', {
+            currentOrigin,
+            currentPort,
+            baseUrl: this.BASE_URL,
+            downloadUrl: this.DOWNLOAD_URL,
+            uploadScript: this.UPLOAD_SCRIPT
+        });
+    }
 
     /**
      * Obtiene la lista de archivos .dat disponibles desde el servidor
