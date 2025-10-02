@@ -23,7 +23,7 @@ export class FileService {
             this.UPLOAD_SCRIPT = 'http://localhost/treelan/datDownload/upload.php';
         } else {
             // Servidor remoto - determinar entorno por puerto
-            const serverBase = 'cotandil.no-ip.org';
+            const serverBase = 'http://cotandil.no-ip.org';
             
             switch (currentPort) {
                 case '5103': // Test
